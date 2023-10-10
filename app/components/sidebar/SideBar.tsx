@@ -12,16 +12,16 @@ const SideBar = () => {
       </div>
 
       <Block title="Action">
-        <BlockCard />
-        <BlockCard />
-        <BlockCard />
-        <BlockCard />
-        <BlockCard />
-        <BlockCard />
+        <BlockCard title="Make HTTP request"/>
+        <BlockCard title="Make HTTP request"/>
+        <BlockCard title="Make HTTP request"/>
+        <BlockCard title="Make HTTP request"/>
+        <BlockCard title="Make HTTP request"/>
+        <BlockCard title="Make HTTP request"/>
       </Block>
 
       <Block title="Utilities">
-        <BlockCard />
+        <BlockCard title="Conditional rule" color="#a3a3a3" icon="conditional.svg"/>
       </Block>
     </div>
   );

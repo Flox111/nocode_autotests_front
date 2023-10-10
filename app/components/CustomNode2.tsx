@@ -1,8 +1,8 @@
 import React, { memo } from 'react';
 import { Handle, Position } from 'reactflow';
-import { Data } from './data';
+import { CustomNodeProps } from './flow/flow.types';
 
-const CustomNode2 = ({data}: {data: Data}) => {
+const CustomNode2 = ({data}: {data: CustomNodeProps}) => {
   return (
     <div className="px-4 py-2 shadow-md rounded-md bg-white border-2 border-stone-400">
       <div className="flex">
