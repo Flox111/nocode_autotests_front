@@ -5,11 +5,10 @@ import { NodeContext } from "../context";
 import Flow from "../flow/Flow";
 import SideBar from "../sidebar/SideBar";
 import { useEdgesState, useNodesState } from "reactflow";
-import { initEdges, initNodes } from "../flow/flow.const";
 
 const Main = () => {
-  const [nodes, setNodes, onNodesChange] = useNodesState(initNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
   const [nodeCount, setNodeCount] = useState(4);
 
   return (

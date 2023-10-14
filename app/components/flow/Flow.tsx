@@ -1,34 +1,22 @@
 "use client";
 
-import React, { useCallback, useRef, useState, useContext } from "react";
+import React, { useCallback, useRef, useContext } from "react";
 import ReactFlow, {
   Background,
-  BackgroundVariant,
   Connection,
   Controls,
   Edge,
-  MarkerType,
   addEdge,
-  updateEdge,
-  useEdgesState,
-  useNodesState,
+  updateEdge
 } from "reactflow";
-import CustomNode from "./nodes/CustomNode";
 
 import "reactflow/dist/base.css";
-import { defaultEdgeOptions } from "../../options/edge.option";
-import { initEdges, initNodes } from "./flow.const";
+import { defaultEdgeOptions } from "./options/edge.option";
 import { NodeContext } from "../context";
-
-const nodeTypes = {
-  custom: CustomNode,
-};
+import { edgeTypes, nodeTypes } from "./flow.types";
 
 export default function Flow() {
   const edgeUpdateSuccessful = useRef(true);
-  // const [nodes, setNodes, onNodesChange] = useNodesState(initNodes);
-  // const [edges, setEdges, onEdgesChange] = useEdgesState(initEdges);
-  // const [nodeCount, setNodeCount] = useState(4);
 
   const {
     nodes,
@@ -38,7 +26,7 @@ export default function Flow() {
     setEdges,
     onEdgesChange,
     nodeCount,
-    setNodeCount
+    setNodeCount,
   } = useContext(NodeContext);
 
   const onEdgeUpdateStart = useCallback(() => {
@@ -49,19 +37,21 @@ export default function Flow() {
     (oldEdge: Edge, newConnection: Connection) => {
       edgeUpdateSuccessful.current = true;
       setEdges((els: Edge[]) => updateEdge(oldEdge, newConnection, els));
-    }, []
+    },
+    []
   );
 
   const onEdgeUpdateEnd = useCallback((_: any, edge: { id: string }) => {
     if (!edgeUpdateSuccessful.current) {
       setEdges((eds: any[]) => eds.filter((e) => e.id !== edge.id));
     }
-
     edgeUpdateSuccessful.current = true;
   }, []);
 
   const onConnect = useCallback(
-    (params: Edge | Connection) => setEdges((eds: Edge[]) => addEdge(params, eds)),
+    (params: Connection) => {
+      setEdges((eds: Edge[]) => addEdge(params, eds));
+    },
     [setEdges]
   );
 
@@ -71,6 +61,7 @@ export default function Flow() {
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onEdgeUpdate={onEdgeUpdate}

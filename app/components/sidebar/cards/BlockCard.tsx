@@ -5,25 +5,17 @@ import { BlockCardProps } from "./card.types";
 import { useContext } from "react";
 import { NodeContext } from "../../context";
 
-const BlockCard = (data: BlockCardProps) => {
-  const bgColor = data.color || "#006acc";
-  const icon = data.icon || "/location.svg";
-
-  const {
-    setNodes,
-    nodeCount,
-    setNodeCount
-  } = useContext(NodeContext);
-
+const BlockCard = ({ type, description, icon, color }: BlockCardProps) => {
+  const { setNodes, nodeCount, setNodeCount } = useContext(NodeContext);
   const onAdd = () => {
     const newNode = {
       id: nodeCount.toString(),
-      type: "custom",
+      type: type,
       data: {
-        title: "Block 5",
-        description: "Make HTTP request",
-        icon: "/location.svg",
-        color: "#006acc",
+        title: `Block ${nodeCount + 1}`,
+        description: description,
+        icon: icon,
+        color: color,
       },
       position: { x: 0, y: 0 },
     };
@@ -37,7 +29,10 @@ const BlockCard = (data: BlockCardProps) => {
       onClick={onAdd}
     >
       <div
-        className={`bg-[${bgColor}] m-[10px] h-[36px] w-[36px] rounded-[4px] flex justify-center items-center`}
+        style={{
+          backgroundColor: color,
+        }}
+        className="m-[10px] h-[36px] w-[36px] rounded-[4px] flex justify-center items-center"
       >
         <Image
           className="h-[20px] w-[20px]"
@@ -48,7 +43,7 @@ const BlockCard = (data: BlockCardProps) => {
         />
       </div>
       <p className="text-[12px] text-center text-[#a3a3a3] leading-3 pb-[10px] px-[4px]">
-        {data.title}
+        {description}
       </p>
     </div>
   );

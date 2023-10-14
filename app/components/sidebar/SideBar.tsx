@@ -12,16 +12,16 @@ const SideBar = () => {
       </div>
 
       <Block title="Action">
-        <BlockCard title="Make HTTP request"/>
-        <BlockCard title="Make HTTP request"/>
-        <BlockCard title="Make HTTP request"/>
-        <BlockCard title="Make HTTP request"/>
-        <BlockCard title="Make HTTP request"/>
-        <BlockCard title="Make HTTP request"/>
+        <BlockCard type='startTriggerNode' description="Start this flow" color="#1e1e1e" icon="/trigger.svg"/>
+        <BlockCard type='finishTriggerNode' description="Finish this flow" color="#12a867" icon="/trigger.svg"/>
+        <BlockCard type='customNode' description="Make HTTP request" color="#006acc" icon="/location.svg"/>
+        <BlockCard type='customNode' description="Make HTTP request" color="#006acc" icon="/location.svg"/>
+        <BlockCard type='customNode' description="Make HTTP request" color="#006acc" icon="/location.svg"/>
+        <BlockCard type='customNode' description="Make HTTP request" color="#006acc" icon="/location.svg"/>
       </Block>
 
       <Block title="Utilities">
-        <BlockCard title="Conditional rule" color="#a3a3a3" icon="conditional.svg"/>
+        <BlockCard type='conditionalRule' description="Conditional rule" color="#a3a3a3" icon="conditional.svg"/>
       </Block>
     </div>
   );

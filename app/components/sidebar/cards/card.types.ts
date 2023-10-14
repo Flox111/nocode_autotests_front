@@ -4,7 +4,8 @@ export interface BlockProps {
 }
 
 export interface BlockCardProps {
-    title: string;
-    icon?: string;
-    color?: string
+    type: string,
+    description: string;
+    icon: string;
+    color: string
 }
