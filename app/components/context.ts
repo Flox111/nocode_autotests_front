@@ -1,11 +1,11 @@
 import { createContext } from "react";
-import { Edge } from "reactflow";
+import { Edge, Node } from "reactflow";
 
 export interface INodeContext {
-  nodes?: any;
+  nodes?: Node[];
   setNodes?: any;
   onNodesChange?: any;
-  edges?: any;
+  edges?: Edge[];
   setEdges?: any
   onEdgesChange?: any;
   nodeCount?: any;

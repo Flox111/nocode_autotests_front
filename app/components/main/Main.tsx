@@ -5,6 +5,7 @@ import { NodeContext } from "../context";
 import Flow from "../flow/Flow";
 import SideBar from "../sidebar/SideBar";
 import { useEdgesState, useNodesState } from "reactflow";
+import Header from "../header/Header";
 
 const Main = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
@@ -24,6 +25,7 @@ const Main = () => {
         setNodeCount,
       }}
     >
+      <Header />
       <div className="flex h-full w-full fixed">
         <SideBar />
         <Flow />

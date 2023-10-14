@@ -10,8 +10,8 @@ export interface CustomNodeProps {
     description: string,
     icon: string,
     color?: string,
-    state?: "success" | "fail" | "process" | "none"
-};
+    state?: "success" | "fail" | "process" | "none" | undefined
+}
 
 export const nodeTypes = {
     customNode: CustomNode,

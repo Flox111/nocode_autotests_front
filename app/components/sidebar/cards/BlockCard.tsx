@@ -16,6 +16,7 @@ const BlockCard = ({ type, description, icon, color }: BlockCardProps) => {
         description: description,
         icon: icon,
         color: color,
+        state: "none"
       },
       position: { x: 0, y: 0 },
     };

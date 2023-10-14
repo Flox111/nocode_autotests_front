@@ -3,22 +3,11 @@ import { Handle, Position } from "reactflow";
 import { CustomNodeProps } from "../flow.types";
 import Image from "next/image";
 import useValidatorFn from "../utils/Validation";
+import { getImageForState } from "../options/flow.option";
 
 const CustomNode = ({ data }: { data: CustomNodeProps }) => {
   const color = data.color || "#006acc";
-  
-  const getColorForStatus = () => {
-    switch (data.state) {
-      case "success":
-        return "green";
-      case "fail":
-        return "red";
-      case "process":
-        return "yellow";
-      default:
-        return "";
-    }
-  };
+  const image = getImageForState(data.state);
 
   return (
     <div className="bg-[#444444] w-[320px] h-[61.6px] shadow-xl border-[1.6px] border-[#212121] rounded-[6px]">
@@ -41,12 +30,15 @@ const CustomNode = ({ data }: { data: CustomNodeProps }) => {
           <div className="font-semibold text-[13.5px]">{data.title}</div>
           <div className="text-[12.5px]">{data.description}</div>
         </div>
-        <div
-          style={{
-            backgroundColor: getColorForStatus(),
-          }}
-          className="w-3 h-3 ml-auto mr-2 mt-2"
-        ></div>
+        {image && (
+          <Image
+            src={image}
+            className="ml-auto mr-2 mt-2 self-start"
+            alt="state"
+            height={16}
+            width={16}
+          />
+        )}
       </div>
       <Handle id="target_1" type="target" position={Position.Top} />
       <Handle

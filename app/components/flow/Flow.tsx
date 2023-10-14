@@ -11,7 +11,7 @@ import ReactFlow, {
 } from "reactflow";
 
 import "reactflow/dist/base.css";
-import { defaultEdgeOptions } from "./options/edge.option";
+import { defaultEdgeOptions } from "./options/flow.option";
 import { NodeContext } from "../context";
 import { edgeTypes, nodeTypes } from "./flow.types";
 
