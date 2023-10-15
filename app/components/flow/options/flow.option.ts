@@ -15,9 +15,9 @@ export const getImageForState = (state?: string) => {
     case "success":
       return "check.svg";
     case "fail":
-      return "check.svg";
+      return "error2.svg";
     case "process":
-      return "check.svg";
+      return "waiting.svg";
     default:
       return null;
   }

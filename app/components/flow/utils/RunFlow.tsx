@@ -15,7 +15,7 @@ const runFlow = (
           if (node.id === currentNode.id) {
             node.data = {
               ...node.data,
-              state: "success",
+              state: "process",
             };
             const outgoingEdges = getConnectedEdges([node], edges || []).filter(
               (edge: Edge) => {
