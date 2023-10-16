@@ -10,7 +10,7 @@ import Header from "../header/Header";
 const Main = () => {
   const [nodes, setNodes, onNodesChange] = useNodesState([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const [nodeCount, setNodeCount] = useState(4);
+  const [nodeCount, setNodeCount] = useState(0);
 
   return (
     <NodeContext.Provider

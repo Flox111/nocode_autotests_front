@@ -4,30 +4,28 @@ import Image from "next/image";
 import { BlockCardProps } from "./card.types";
 import { useContext } from "react";
 import { NodeContext } from "../../context";
+import { addNewNode } from "../../flow/options/flow.option";
 
 const BlockCard = ({ type, description, icon, color }: BlockCardProps) => {
-  const { setNodes, nodeCount, setNodeCount } = useContext(NodeContext);
-  const onAdd = () => {
-    const newNode = {
-      id: nodeCount.toString(),
-      type: type,
-      data: {
-        title: `Block ${nodeCount + 1}`,
-        description: description,
-        icon: icon,
-        color: color,
-        state: "none"
-      },
-      position: { x: 0, y: 0 },
-    };
-    setNodeCount(nodeCount + 1);
-    setNodes((nds: any[]) => nds.concat(newNode));
+  const { nodes, setNodes, nodeCount, setNodeCount } = useContext(NodeContext);
+
+  const onClick = () => {
+    addNewNode(
+      type,
+      description,
+      icon,
+      color,
+      nodes,
+      setNodes,
+      nodeCount,
+      setNodeCount
+    );
   };
 
   return (
     <div
-      className="flex flex-col justify-center w-[80px] items-center h-full gap-1"
-      onClick={onAdd}
+      className="flex flex-col justify-center w-[80px] items-center h-full gap-1 hover:bg-[#bdbdbd]/[0.1]"
+      onClick={onClick}
     >
       <div
         style={{

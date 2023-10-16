@@ -4,13 +4,23 @@ import { CustomNodeProps } from "../flow.types";
 import Image from "next/image";
 import useValidatorFn from "../utils/Validation";
 import { getImageForState } from "../options/flow.option";
+import MakeRequestDetails from "../../dialog/MakeRequestDetails";
 
-const CustomNode = ({ data }: { data: CustomNodeProps }) => {
+const MakeRequestNode = ({ data }: { data: CustomNodeProps }) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   const color = data.color || "#006acc";
   const image = getImageForState(data.state);
 
   return (
-    <div className="bg-[#444444] w-[320px] h-[61.6px] shadow-xl border-[1.6px] border-[#212121] rounded-[6px]">
+    <div 
+    onClick={() => setIsOpen(true)}
+    style={{
+      boxShadow: '0px 0px 4px #63d489, 0px 0px 0px 6px rgb(99 212 137 / 12%)',
+      border: '1.6px solid #63d489'
+    }}
+    className="bg-[#444444] w-[320px] h-[61.6px] shadow-xl border-[1.6px] border-[#212121] rounded-[6px]"
+    >
       <div className="flex justify-start ms-1">
         <div
           style={{
@@ -40,6 +50,7 @@ const CustomNode = ({ data }: { data: CustomNodeProps }) => {
           />
         )}
       </div>
+      <MakeRequestDetails isOpen={isOpen} closeModal={() => setIsOpen(false)} />
       <Handle id="target_1" type="target" position={Position.Top} />
       <Handle
         id="source_1"
@@ -51,4 +62,4 @@ const CustomNode = ({ data }: { data: CustomNodeProps }) => {
   );
 };
 
-export default memo(CustomNode);
+export default memo(MakeRequestNode);
