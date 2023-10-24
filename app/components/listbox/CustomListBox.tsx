@@ -1,22 +1,33 @@
 import { Listbox, Transition } from "@headlessui/react";
-import React, { Fragment, useState } from "react";
+import React, { FC, Fragment, useState } from "react";
 import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 
-const methods = [
-  { id: 1, name: "GET" },
-  { id: 2, name: "POST" },
-  { id: 3, name: "DELETE" },
-  { id: 4, name: "PUT" },
-];
+export type ListParameter = {
+  id: number;
+  name: string;
+};
 
-const CustomListBox = () => {
-  const [selected, setSelected] = useState(methods[0]);
+export type CustomListBoxProps = {
+  parameters: ListParameter[];
+  selected: any;
+  setSelected: any;
+};
 
+const CustomListBox: FC<CustomListBoxProps> = ({
+  parameters,
+  selected,
+  setSelected,
+}) => {
   return (
     <>
       <Listbox value={selected} onChange={setSelected}>
-        <div className="relative mt-1">
-          <Listbox.Button className="text-[12px] relative w-full cursor-default rounded-lg bg-[#373737] py-2 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300">
+        <div className="relative mt-1 mb-2 z-20">
+          <Listbox.Button
+            className="text-[12px] text-primary-100 relative w-full cursor-default rounded-lg bg-[#373737] 
+          py-1 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 
+          focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 
+          focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300"
+          >
             <span className="block truncate">{selected.name}</span>
             <span className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
               <ChevronUpDownIcon
@@ -31,16 +42,19 @@ const CustomListBox = () => {
             leaveFrom="opacity-100"
             leaveTo="opacity-0"
           >
-            <Listbox.Options className="absolute mt-1 max-h-50 w-full overflow-auto rounded-md bg-white py-1 text-[13px] shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-              {methods.map((method, id) => (
+            <Listbox.Options
+              className="absolute mt-1 max-h-50 w-full overflow-auto rounded-md bg-[#383838] 
+            py-1 text-[11px] text-primary-100 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+            >
+              {parameters.map((parameter, id) => (
                 <Listbox.Option
                   key={id}
                   className={({ active }) =>
-                    `relative cursor-default select-none py-2 pl-10 pr-4 ${
-                      active ? "bg-amber-100 text-amber-900" : "text-gray-900"
+                    `relative cursor-default select-none py-1 pl-10 pr-4 ${
+                      active ? "bg-[#444444]" : ""
                     }`
                   }
-                  value={method}
+                  value={parameter}
                 >
                   {({ selected }) => (
                     <>
@@ -49,10 +63,10 @@ const CustomListBox = () => {
                           selected ? "font-medium" : "font-normal"
                         }`}
                       >
-                        {method.name}
+                        {parameter.name}
                       </span>
                       {selected ? (
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-amber-600">
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-3 text-primary-100">
                           <CheckIcon className="h-5 w-5" aria-hidden="true" />
                         </span>
                       ) : null}

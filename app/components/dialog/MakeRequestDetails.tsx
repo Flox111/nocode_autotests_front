@@ -1,26 +1,90 @@
 "use client";
 
-import React, { FC, Fragment } from "react";
+import React, { FC, useState } from "react";
 import Image from "next/image";
 import CustomDialog from "./CustomDialog";
 import { CustomDialogProps } from "../flow/flow.types";
 import { Tab } from "@headlessui/react";
-import CustomListBox from "../listbox/CustomListBox";
+import CustomListBox, { ListParameter } from "../listbox/CustomListBox";
+import {
+  Header,
+  RequestParams,
+  ResultProps,
+  sendRequest,
+} from "@/app/utils/HttpClient";
+import { TailSpin } from "react-loading-icons";
+
+const methods: ListParameter[] = [
+  { id: 1, name: "GET" },
+  { id: 2, name: "POST" },
+  { id: 3, name: "DELETE" },
+  { id: 4, name: "PUT" },
+];
 
 const MakeRequestDetails: FC<CustomDialogProps> = ({
   isOpen,
   closeModal,
 }: CustomDialogProps) => {
+  const [url, setUrl] = useState("");
+  const [headers, setHeaders] = useState<Header[]>([]);
+  const [headerKey, setHeaderKey] = useState("");
+  const [headerValue, setHeaderValue] = useState("");
+  const [selected, setSelected] = useState(methods[0]);
+  const [requestBody, setRequestBody] = useState("");
+  const [responseBody, setResponseBody] = useState<ResultProps>();
+  const [statusTestRequest, setStatusTestRequest] = useState("none");
+
+  const addHeader = () => {
+    const newHeader: Header = {
+      key: headerKey,
+      value: headerValue,
+    };
+    if (headerKey == "" || headerValue == "") return;
+    if (
+      headers.filter((header) => {
+        return header.key == newHeader.key;
+      }).length == 0
+    ) {
+      setHeaders((hs: Header[]) => hs.concat(newHeader));
+    }
+    setHeaderKey("");
+    setHeaderValue("");
+  };
+
+  const deleteHeader = (key: string) => {
+    setHeaders(
+      headers.filter((header) => {
+        return header.key != key;
+      })
+    );
+  };
+
+  const testRequest = async () => {
+    const request: RequestParams = {
+      method: selected.name,
+      url: url,
+      headers: headers,
+      data: requestBody,
+    };
+    setStatusTestRequest("waiting");
+    setResponseBody(
+      await sendRequest(request).then((response: ResultProps) => {
+        setStatusTestRequest(response.state);
+        return response;
+      })
+    );
+  };
+
   return (
     <CustomDialog isOpen={isOpen} closeModal={closeModal}>
-      <div className="flex-1 flex flex-col gap-3 text-[#f5f5f5]">
-        <div className="flex justify-between border-[#3b3b3b] border-b-[1px] w-full">
+      <div className="flex-1 flex flex-col gap-3 text-primary-100">
+        <div className="flex justify-between border-primary-300 border-b-[1px] w-full">
           <div className="text-[12.5px] font-semibold mx-[10px] my-[10px] self-center">
             Make HTTP request
           </div>
           <button
             type="button"
-            className="flex w-[24px] h-[24px] self-center justify-center items-center rounded-[4px] me-[10px] hover:bg-[#bdbdbd]/[0.1]"
+            className="flex w-[24px] h-[24px] self-center justify-center items-center rounded-[4px] me-[10px] hover:bg-primary-300/[0.1]"
             onClick={closeModal}
           >
             <Image
@@ -28,7 +92,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
               alt="close"
               width={12}
               height={12}
-              className=" self-center"
+              className="self-center"
             />
           </button>
         </div>
@@ -36,14 +100,14 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
           <div className="text-[11.5px] mb-2">
             Set up the action to send or receive data using the HTTP request.
           </div>
-          <div className="text-[11.5px] text-[#bdbdbd]">Block name</div>
+          <div className="text-[11.5px] text-primary-300">Block name</div>
           <input
-            className="mt-1 w-full px-3 py-1 bg-[#000000]/[0.1] border-[0.8px] border-[#ffffff]/[0.14] 
-                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-[#007df0] disabled:shadow-none"
+            className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none"
           ></input>
         </div>
         <Tab.Group>
-          <Tab.List className="flex justify-around text-[13px] border-[#3b3b3b] border-b-[1px] mx-[10px]">
+          <Tab.List className="flex justify-around text-[13px] border-primary-300 border-b-[1px] mx-[10px]">
             <Tab>
               {({ selected }) => (
                 <>
@@ -51,7 +115,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                     className={
                       selected
                         ? "font-semibold mb-1"
-                        : "text-[#bdbdbd] hover:text-[#f5f5f5] mb-1"
+                        : "text-primary-400 hover:text-primary-100 mb-1"
                     }
                   >
                     Settings
@@ -60,7 +124,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                     className={
                       selected
                         ? "border-b-2"
-                        : "text-[#bdbdbd] hover:text-[#f5f5f5] border-[#1e1e1e]"
+                        : "text-primary-400 hover:text-primary-100 border-primary-200"
                     }
                   />
                 </>
@@ -73,7 +137,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                     className={
                       selected
                         ? "font-semibold mb-1"
-                        : "text-[#bdbdbd] hover:text-[#f5f5f5] mb-1"
+                        : "text-primary-400 hover:text-primary-100 mb-1"
                     }
                   >
                     Output
@@ -82,29 +146,194 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                     className={
                       selected
                         ? "border-b-2 "
-                        : "text-[#bdbdbd] hover:text-[#f5f5f5] border-[#1e1e1e]"
+                        : "text-primary-400 hover:text-primary-100 border-primary-200"
                     }
                   />
                 </>
               )}
             </Tab>
           </Tab.List>
-          <Tab.Panels className="mx-[10px] text-[#bdbdbd]">
+          <Tab.Panels className="mx-[10px] text-primary-400">
             <Tab.Panel>
               <>
-                <CustomListBox/>
+                <CustomListBox
+                  parameters={methods}
+                  selected={selected}
+                  setSelected={setSelected}
+                />
+                <div>
+                  <div className="text-[11.5px] text-primary-400">URL</div>
+                  <input
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                    className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none"
+                  />
+                </div>
+                <div className="text-[11.5px]">Headers</div>
+                <div className="mt-1 w-full py-1 min-h-[50px] bg-black/[0.1] border-[0.8px] border-white/[0.14] rounded-[4px] text-[11.5px] shadow-sm">
+                  <div className="flex flex-col gap-1 w-full">
+                    {headers.map(({ key, value }) => (
+                      <div
+                        key={key}
+                        className="flex hover:bg-primary-400/[0.1] px-3 items-center"
+                      >
+                        {
+                          <>
+                            <div className="text-primary-400 text-ellipsis max-w-[33ch] overflow-hidden">
+                              {key}
+                            </div>
+                            <div>&nbsp;:&nbsp;</div>
+                            <div className="text-primary-100 text-ellipsis max-w-[33ch] overflow-hidden">
+                              {value}
+                            </div>
+                          </>
+                        }
+                        <button
+                          type="button"
+                          onClick={() => deleteHeader(key)}
+                          className="flex w-[24px] h-[24px] ml-auto self-center justify-center items-center rounded-[4px] me-[10px] hover:bg-primary-400/[0.1]"
+                        >
+                          <Image
+                            className="fill-primary-400 z-10"
+                            src="/delete.svg"
+                            alt="delete"
+                            width={14}
+                            height={14}
+                          />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <input
+                    id="key"
+                    value={headerKey}
+                    onChange={(e) => setHeaderKey(e.target.value)}
+                    placeholder="Enter name..."
+                    className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none"
+                  ></input>
+                  <input
+                    id="value"
+                    value={headerValue}
+                    onChange={(e) => setHeaderValue(e.target.value)}
+                    placeholder="Enter value..."
+                    className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none"
+                  ></input>
+                </div>
+                <div className="w-full flex mt-2">
+                  <button
+                    onClick={addHeader}
+                    className="bg-primary-500 ml-auto text-primary-100 text-[11.5px] 
+                    rounded-[4px] px-[8px] py-[2px] hover:bg-primary-500/[0.5]"
+                  >
+                    Add new header
+                  </button>
+                </div>
+
                 <div className="text-[11.5px]">Body</div>
                 <textarea
-                  className="fmt-1 w-full px-3 py-1 bg-[#000000]/[0.1] border-[0.8px] border-[#ffffff]/[0.14] 
-                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-[#007df0] disabled:shadow-none
+                  value={requestBody}
+                  onChange={(e) => setRequestBody(e.target.value)}
+                  className="fmt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none
                       resize-none scrollable h-72"
-                ></textarea>
-                
+                />
               </>
             </Tab.Panel>
-            <Tab.Panel>Content 2</Tab.Panel>
+            <Tab.Panel>
+              <div className="w-full flex mt-2">
+                <button
+                  onClick={testRequest}
+                  className="bg-primary-500 w-full text-primary-100 mb-3
+                    text-[11.5px] rounded-[4px] px-[8px] py-[2px] hover:bg-primary-500/[0.5]"
+                >
+                  Run test
+                </button>
+              </div>
+              <div className="w-full flex">
+                {(() => {
+                  switch (statusTestRequest) {
+                    case "success":
+                      return (
+                        <div
+                          className="bg-primary-700 w-full text-primary-100 mb-3 border-white/[0.14] border-[0.8px]
+                            text-[11.5px] rounded-[4px] flex items-center h-14 justify-between gap-3 px-9"
+                        >
+                          <div className="flex gap-2 items-center">
+                            <Image
+                              src="/circle-check.svg"
+                              alt="circleCheck"
+                              width={20}
+                              height={20}
+                            />
+                            <div>Test request has been successful</div>
+                          </div>
+                          <div>Status: {responseBody?.status}</div>
+                        </div>
+                      );
+                    case "error":
+                      return (
+                        <div
+                          className="bg-[#cf313b] w-full text-primary-100 mb-3 border-white/[0.14] border-[0.8px]
+                            text-[11.5px] rounded-[4px] flex items-center h-14 justify-between gap-3 px-9"
+                        >
+                          <div className="flex gap-2 items-center">
+                            <Image
+                              src="/block.svg"
+                              alt="circleCheck"
+                              width={20}
+                              height={20}
+                            />
+                            <div>
+                              <div>Bad Request</div>
+                              <p className="text-ellipsis max-w-[50ch] overflow-hidden">
+                                {responseBody?.body}
+                              </p>
+                            </div>
+                          </div>
+                          <div>Status: {responseBody?.status}</div>
+                        </div>
+                      );
+                    case "waiting":
+                      return (
+                        <div
+                          className="bg-primary-600 w-full text-primary-100 mb-3 border-white/[0.14] border-[0.8px]
+                        text-[11.5px] rounded-[4px] flex items-center h-14 justify-center gap-3"
+                        >
+                          <TailSpin height={14} width={14} />
+                          <div>Processing request...</div>
+                        </div>
+                      );
+                    default:
+                      return <></>;
+                  }
+                })()}
+              </div>
+              {responseBody?.state == "success" && (
+                <textarea
+                  value={responseBody?.body}
+                  disabled
+                  className="fmt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none
+                      resize-none scrollable h-72 overflow-x-hidden"
+                />
+              )}
+            </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>
+        <div className="flex mt-1 mx-[10px] mb-4">
+          <button
+            onClick={closeModal}
+            className="bg-primary-500 ml-auto text-primary-100 text-[11.5px] 
+            rounded-[4px] px-[10px] py-[2px] hover:bg-primary-500/[0.5]"
+          >
+            Apply
+          </button>
+        </div>
       </div>
     </CustomDialog>
   );

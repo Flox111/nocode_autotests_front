@@ -23,7 +23,7 @@ const ConditionalRuleNode = ({ data }: { data: CustomNodeProps }) => {
             height={20}
           />
         </div>
-        <div className="flex flex-col text-[#ffffff] self-center">
+        <div className="flex flex-col text-white self-center">
           <div className="font-semibold text-[13.5px]">{data.title}</div>
           <div className="text-[12.5px]">{data.description}</div>
         </div>

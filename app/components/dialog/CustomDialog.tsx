@@ -34,9 +34,9 @@ const CustomDialog: FC<CustomDialogProps> = ({
                 leaveTo="opacity-0 scale-95"
               >
                 <Dialog.Panel
-                  className="relative w-full max-w-lg 
-                    max-h-[90vh] overflow-y-auto transform rounded-[4px] bg-[#1e1e1e] 
-                    text-left shadow-lg transition-all flex flex-col gap-5 text-[#f5f5f5]"
+                  className="relative w-full max-w-lg scrollable 
+                    max-h-[90vh] overflow-y-auto transform rounded-[4px] bg-primary-200 
+                    text-left shadow-lg transition-all flex flex-col gap-5 text-primary-100"
                 >
                   {children}
                 </Dialog.Panel>

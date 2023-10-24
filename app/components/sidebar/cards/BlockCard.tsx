@@ -24,7 +24,7 @@ const BlockCard = ({ type, description, icon, color }: BlockCardProps) => {
 
   return (
     <div
-      className="flex flex-col justify-center w-[80px] items-center h-full gap-1 hover:bg-[#bdbdbd]/[0.1]"
+      className="flex flex-col justify-center w-[80px] items-center h-full gap-1 hover:bg-primary-400/[0.1]"
       onClick={onClick}
     >
       <div

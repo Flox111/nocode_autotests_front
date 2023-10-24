@@ -13,7 +13,7 @@ const Header = () => {
   }
 
   return (
-    <div className="bg-[#1e1e1e] h-[48px] py-[10px]">
+    <div className="bg-primary-200 h-[48px] py-[10px]">
       <div className="grid grid-cols-3">
         <div></div>
         <h2 className="text-[#d9d9d9] text-[18px] font-semibold justify-self-center">
@@ -22,7 +22,7 @@ const Header = () => {
         <div className="text-[#d9d9d9] text-[12px] mr-[10px] self-center justify-self-end">
           <button
             onClick={onClick}
-            className="bg-[#444444] rounded-[4px] px-[8px] hover:bg-[#bdbdbd]/[0.5]"
+            className="bg-[#444444] rounded-[4px] px-[8px] hover:bg-primary-400/[0.5]"
           >
             Test flow
           </button>
