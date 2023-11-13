@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, useState } from "react";
+import React, { FC, useContext, useState } from "react";
 import Image from "next/image";
 import CustomDialog from "./CustomDialog";
 import { CustomDialogProps } from "../flow/flow.types";
@@ -13,6 +13,8 @@ import {
   sendRequest,
 } from "@/app/utils/HttpClient";
 import { TailSpin } from "react-loading-icons";
+import { NodeContext } from "../context";
+import { Node } from "reactflow";
 
 const methods: ListParameter[] = [
   { id: 1, name: "GET" },
@@ -24,6 +26,8 @@ const methods: ListParameter[] = [
 const MakeRequestDetails: FC<CustomDialogProps> = ({
   isOpen,
   closeModal,
+  id,
+  nodeProps,
 }: CustomDialogProps) => {
   const [url, setUrl] = useState("");
   const [headers, setHeaders] = useState<Header[]>([]);
@@ -33,6 +37,8 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
   const [requestBody, setRequestBody] = useState("");
   const [responseBody, setResponseBody] = useState<ResultProps>();
   const [statusTestRequest, setStatusTestRequest] = useState("none");
+
+  const { setNodes, nodes } = useContext(NodeContext);
 
   const addHeader = () => {
     const newHeader: Header = {
@@ -75,12 +81,47 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
     );
   };
 
+  const apply = () => {
+    const h: Map<string, string> = new Map();
+    headers.map((header) => h.set(header.key, header.value));
+    let method = "";
+    if (nodeProps?.type === "getRequest") {
+      method = "GET";
+    } else if (nodeProps?.type === "postRequest") {
+      method = "POST";
+    } else if (nodeProps?.type === "deleteRequest") {
+      method = "DELETE";
+    } else if (nodeProps?.type === "putRequest") {
+      method = "PUT";
+    } else if (nodeProps?.type === "httpRequest") {
+      method = selected.name;
+    }
+    const config = {
+      method: method,
+      url: url,
+      headers: h,
+      data: requestBody,
+    };
+    setNodes((nds: Node[]) =>
+      nds.map((node) => {
+        if (node.id === id) {
+          node.data = {
+            ...node.data,
+            config: config,
+          };
+        }
+        return node;
+      })
+    );
+    closeModal();
+  };
+
   return (
-    <CustomDialog isOpen={isOpen} closeModal={closeModal}>
-      <div className="flex-1 flex flex-col gap-3 text-primary-100">
+    <CustomDialog isOpen={isOpen} closeModal={closeModal} id={id}>
+      <div className="flex-1 flex flex-col gap-3 text-primary-100 border-primary-300 border-b-[1px] pb-7">
         <div className="flex justify-between border-primary-300 border-b-[1px] w-full">
           <div className="text-[12.5px] font-semibold mx-[10px] my-[10px] self-center">
-            Make HTTP request
+            {nodeProps?.description}
           </div>
           <button
             type="button"
@@ -98,9 +139,10 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
         </div>
         <div className="mx-[10px]">
           <div className="text-[11.5px] mb-2">
-            Set up the action to send or receive data using the HTTP request.
+            Настройте параметры для отправки или получения данных с помощью
+            HTTP-запроса
           </div>
-          <div className="text-[11.5px] text-primary-300">Block name</div>
+          <div className="text-[11.5px] text-primary-400">Название блока</div>
           <input
             className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
                       rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none"
@@ -118,7 +160,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                         : "text-primary-400 hover:text-primary-100 mb-1"
                     }
                   >
-                    Settings
+                    Настройки
                   </div>
                   <div
                     className={
@@ -140,7 +182,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                         : "text-primary-400 hover:text-primary-100 mb-1"
                     }
                   >
-                    Output
+                    Тестирование
                   </div>
                   <div
                     className={
@@ -156,11 +198,15 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
           <Tab.Panels className="mx-[10px] text-primary-400">
             <Tab.Panel>
               <>
-                <CustomListBox
-                  parameters={methods}
-                  selected={selected}
-                  setSelected={setSelected}
-                />
+                {nodeProps?.type === "httpRequest" ? (
+                  <CustomListBox
+                    parameters={methods}
+                    selected={selected}
+                    setSelected={setSelected}
+                  />
+                ) : (
+                  <></>
+                )}
                 <div>
                   <div className="text-[11.5px] text-primary-400">URL</div>
                   <input
@@ -170,7 +216,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                       rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none"
                   />
                 </div>
-                <div className="text-[11.5px]">Headers</div>
+                <div className="text-[11.5px]">Заголовки</div>
                 <div className="mt-1 w-full py-1 min-h-[50px] bg-black/[0.1] border-[0.8px] border-white/[0.14] rounded-[4px] text-[11.5px] shadow-sm">
                   <div className="flex flex-col gap-1 w-full">
                     {headers.map(({ key, value }) => (
@@ -211,7 +257,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                     id="key"
                     value={headerKey}
                     onChange={(e) => setHeaderKey(e.target.value)}
-                    placeholder="Enter name..."
+                    placeholder="Введите имя..."
                     className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
                       rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none"
                   ></input>
@@ -219,7 +265,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                     id="value"
                     value={headerValue}
                     onChange={(e) => setHeaderValue(e.target.value)}
-                    placeholder="Enter value..."
+                    placeholder="Введите значение..."
                     className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
                       rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none"
                   ></input>
@@ -230,11 +276,11 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                     className="bg-primary-500 ml-auto text-primary-100 text-[11.5px] 
                     rounded-[4px] px-[8px] py-[2px] hover:bg-primary-500/[0.5]"
                   >
-                    Add new header
+                    Добавить новый заголовок
                   </button>
                 </div>
 
-                <div className="text-[11.5px]">Body</div>
+                <div className="text-[11.5px]">Тело запроса</div>
                 <textarea
                   value={requestBody}
                   onChange={(e) => setRequestBody(e.target.value)}
@@ -251,7 +297,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                   className="bg-primary-500 w-full text-primary-100 mb-3
                     text-[11.5px] rounded-[4px] px-[8px] py-[2px] hover:bg-primary-500/[0.5]"
                 >
-                  Run test
+                  Отправить запрос
                 </button>
               </div>
               <div className="w-full flex">
@@ -325,15 +371,15 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>
-        <div className="flex mt-1 mx-[10px] mb-4">
-          <button
-            onClick={closeModal}
-            className="bg-primary-500 ml-auto text-primary-100 text-[11.5px] 
+      </div>
+      <div className="flex mx-[10px] mb-5">
+        <button
+          onClick={apply}
+          className="bg-primary-500 ml-auto text-primary-100 text-[11.5px] 
             rounded-[4px] px-[10px] py-[2px] hover:bg-primary-500/[0.5]"
-          >
-            Apply
-          </button>
-        </div>
+        >
+          Применить
+        </button>
       </div>
     </CustomDialog>
   );

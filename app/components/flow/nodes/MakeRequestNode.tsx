@@ -6,20 +6,26 @@ import useValidatorFn from "../utils/Validation";
 import { getImageForState } from "../options/flow.option";
 import MakeRequestDetails from "../../dialog/MakeRequestDetails";
 
-const MakeRequestNode = ({ id, data }: { data: CustomNodeProps, id: string }) => {
+const MakeRequestNode = ({
+  id,
+  data,
+}: {
+  data: CustomNodeProps;
+  id: string;
+}) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const color = data.color || "#006acc";
   const image = getImageForState(data.state);
 
   return (
-    <div 
-    onClick={() => setIsOpen(true)}
-    style={{
-      boxShadow: '0px 0px 4px #63d489, 0px 0px 0px 6px rgb(99 212 137 / 12%)',
-      border: '1.6px solid #63d489'
-    }}
-    className="bg-[#444444] w-[320px] h-[61.6px] shadow-xl border-[1.6px] border-[#212121] rounded-[6px]"
+    <div
+      onClick={() => setIsOpen(true)}
+      style={{
+        boxShadow: "0px 0px 4px #63d489, 0px 0px 0px 6px rgb(99 212 137 / 12%)",
+        border: "1.6px solid #63d489",
+      }}
+      className="bg-[#444444] w-[320px] h-[61.6px] shadow-xl border-[1.6px] border-[#212121] rounded-[6px]"
     >
       <div className="flex justify-start ms-1">
         <div
@@ -50,7 +56,12 @@ const MakeRequestNode = ({ id, data }: { data: CustomNodeProps, id: string }) =>
           />
         )}
       </div>
-      <MakeRequestDetails isOpen={isOpen} closeModal={() => setIsOpen(false)} />
+      <MakeRequestDetails
+        isOpen={isOpen}
+        closeModal={() => setIsOpen(false)}
+        id={id}
+        nodeProps={data}
+      />
       <Handle id="target_1" type="target" position={Position.Top} />
       <Handle
         id="source_1"

@@ -7,8 +7,9 @@ const runFlow = (
   setNodes: any
 ) => {
   const startNode = nodes?.find((it) => it.type == "startTriggerNode");
-  
-  const find = (currentNode: Node | undefined) => {
+
+  const recursiveFlow = (currentNode: Node | undefined) => {
+    console.log(currentNode);
     if (currentNode != null && nodes != null) {
       setNodes((nds: Node[]) =>
         nds.map((node) => {
@@ -17,25 +18,25 @@ const runFlow = (
               ...node.data,
               state: "success",
             };
-            const outgoingEdges = getConnectedEdges([node], edges || []).filter(
-              (edge: Edge) => {
-                return edge.source == node.id;
-              }
-            );
-            if (outgoingEdges.length > 0) {
-              const nextNode = nodes.find((node: Node) => {
-                return node.id == outgoingEdges[0].target;
-              });
-              find(nextNode);
-            }
           }
           return node;
         })
       );
+      const outgoingEdges = getConnectedEdges([currentNode], edges || []).filter(
+        (edge: Edge) => {
+          return edge.source == currentNode.id;
+        }
+      );
+      if (outgoingEdges.length > 0) {
+        const nextNode = nodes.find((node: Node) => {
+          return node.id == outgoingEdges[0].target;
+        });
+        recursiveFlow(nextNode);
+      }
     }
   };
-  
-  find(startNode);
+
+  recursiveFlow(startNode);
 };
 
 export default runFlow;

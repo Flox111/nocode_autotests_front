@@ -37,6 +37,8 @@ export const addNewNode = (
       icon: icon,
       color: color,
       state: "none",
+      config: null,
+      type: type
     },
     position: { x: 0, y: 0 },
   };

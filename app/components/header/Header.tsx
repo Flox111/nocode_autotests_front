@@ -1,8 +1,5 @@
-import { Node, getConnectedEdges, useReactFlow } from "reactflow";
 import { NodeContext } from "../context";
 import { useContext } from "react";
-import useValidatorFn from "../flow/utils/Validation";
-import useRunFlow from "../flow/utils/RunFlow";
 import runFlow from "../flow/utils/RunFlow";
 
 const Header = () => {
@@ -17,14 +14,14 @@ const Header = () => {
       <div className="grid grid-cols-3">
         <div></div>
         <h2 className="text-[#d9d9d9] text-[18px] font-semibold justify-self-center">
-          Flows / New flow
+          Сценарии / Новый сценарий
         </h2>
         <div className="text-[#d9d9d9] text-[12px] mr-[10px] self-center justify-self-end">
           <button
             onClick={onClick}
             className="bg-[#444444] rounded-[4px] px-[8px] hover:bg-primary-400/[0.5]"
           >
-            Test flow
+            Запустить сценарий
           </button>
         </div>
       </div>
