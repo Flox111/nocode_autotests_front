@@ -4,3 +4,9 @@ export interface MakeRequestConfig {
     headers: Map<string, string>;
     data: any;
 }
+
+export interface ConditionConfig {
+    param: string,
+    value: string,
+    condition: string,
+}

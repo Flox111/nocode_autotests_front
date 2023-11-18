@@ -6,12 +6,14 @@ import CustomDialog from "./CustomDialog";
 import { CustomDialogProps } from "../flow/flow.types";
 import { Tab } from "@headlessui/react";
 import CustomListBox, { ListParameter } from "../listbox/CustomListBox";
+import { NodeContext } from "../context";
+import { Node } from "reactflow";
 
-const methods: ListParameter[] = [
+const conditions: ListParameter[] = [
   { id: 1, name: "РАВНО" },
   { id: 2, name: "НЕ РАВНО" },
-  { id: 3, name: "DELETE" },
-  { id: 4, name: "PUT" },
+  { id: 3, name: "СОДЕРЖИТ" },
+  { id: 4, name: "НЕ СОДЕЖИТ" },
 ];
 
 const MakeRequestDetails: FC<CustomDialogProps> = ({
@@ -20,10 +22,30 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
   id,
   nodeProps,
 }: CustomDialogProps) => {
-  const [url, setUrl] = useState("");
-  const [selected, setSelected] = useState(methods[0]);
+  const [param, setParam] = useState("");
+  const [value, setValue] = useState("");
+
+  const { setNodes, nodes } = useContext(NodeContext);
+
+  const [selected, setSelected] = useState(conditions[0]);
 
   const apply = () => {
+    const config = {
+      param: param,
+      value: value,
+      condition: selected.name,
+    };
+    setNodes((nds: Node[]) =>
+      nds.map((node) => {
+        if (node.id === id) {
+          node.data = {
+            ...node.data,
+            config: config,
+          };
+        }
+        return node;
+      })
+    );
     closeModal();
   };
 
@@ -51,7 +73,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
         <div className="mx-[10px]">
           <div className="text-[11.5px] mb-2">
             Задайте условие для выполнения True ветки. Если это условие не
-            выполняется, будут выполнены действия в False ветви
+            выполняется, будут выполнены действия в False ветке
           </div>
           <div className="text-[11.5px] text-primary-400">Название блока</div>
           <input
@@ -86,41 +108,34 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
           </Tab.List>
           <Tab.Panels className="mx-[10px] text-primary-400">
             <Tab.Panel>
-              <>
-                {nodeProps?.type === "httpRequest" ? (
-                  <CustomListBox
-                    parameters={methods}
-                    selected={selected}
-                    setSelected={setSelected}
-                  />
-                ) : (
-                  <></>
-                )}
-                <div className="grid grid-cols-3 grid-rows-2 gap-0 m-0 p-0">
-                  <div className="text-[11.5px] text-primary-400">Параметр</div>
+                <div className="grid grid-cols-3 gap-2">
+                  <div className="text-[11.5px] text-primary-400 h-1">
+                    Параметр
+                  </div>
                   <div></div>
                   <div className="text-[11.5px] text-primary-400">Значение</div>
-                  <input
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
+                  <textarea
+                    value={param}
+                    onChange={(e) => setParam(e.target.value)}
                     className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
-                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none"
+                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 
+                      disabled:shadow-none resize-none h-[40px] scrollable"
                   />
                   <div>
                     <CustomListBox
-                      parameters={methods}
+                      parameters={conditions}
                       selected={selected}
                       setSelected={setSelected}
                     />
                   </div>
-                  <input
-                    value={url}
-                    onChange={(e) => setUrl(e.target.value)}
+                  <textarea
+                    value={value}
+                    onChange={(e) => setValue(e.target.value)}
                     className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
-                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none"
+                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 
+                      disabled:shadow-none resize-none min-h-[150px] max-h-72 scrollable"
                   />
                 </div>
-              </>
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>

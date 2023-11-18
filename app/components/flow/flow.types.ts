@@ -3,7 +3,7 @@ import CustomEdge from "./edges/CustomEdge";
 import ConditionalRuleNode from "./nodes/ConditionalRuleNode";
 import FinishTriggerNode from "./nodes/FinishTriggerNode";
 import StartTriggerNode from "./nodes/StartTriggerNode";
-import { MakeRequestConfig } from "./nodes/nodes.config.";
+import { ConditionConfig, MakeRequestConfig } from "./nodes/nodes.config.";
 import MakeRequestNode from "./nodes/MakeRequestNode";
 
 export interface CustomNodeProps {
@@ -12,7 +12,7 @@ export interface CustomNodeProps {
     icon: string,
     color?: string,
     state?: "success" | "fail" | "process" | "none" | undefined,
-    config?: MakeRequestConfig,
+    config?: MakeRequestConfig | ConditionConfig,
     type?: string
 }
 
