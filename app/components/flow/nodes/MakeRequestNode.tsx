@@ -3,7 +3,7 @@ import { Handle, Position } from "reactflow";
 import { CustomNodeProps } from "../flow.types";
 import Image from "next/image";
 import useValidatorFn from "../utils/Validation";
-import { getImageForState } from "../options/flow.option";
+import { getImageForState, getShadowCssPropertyForNode } from "../options/flow.option";
 import MakeRequestDetails from "../../dialog/MakeRequestDetails";
 
 const MakeRequestNode = ({
@@ -22,10 +22,11 @@ const MakeRequestNode = ({
     <div
       onClick={() => setIsOpen(true)}
       style={{
-        boxShadow: "0px 0px 4px #63d489, 0px 0px 0px 6px rgb(99 212 137 / 12%)",
-        border: "1.6px solid #63d489",
+        boxShadow: getShadowCssPropertyForNode(data.state),
+        borderWidth: data.state == 'none' ? '1.6px' : "",
+        borderColor: data.state == 'none' ? '#212121' : ""
       }}
-      className="bg-[#444444] w-[320px] h-[61.6px] shadow-xl border-[1.6px] border-[#212121] rounded-[6px]"
+      className="bg-[#444444] w-[320px] h-[61.6px] rounded-[6px]"
     >
       <div className="flex justify-start ms-1">
         <div

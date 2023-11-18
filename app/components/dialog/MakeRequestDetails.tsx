@@ -208,7 +208,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                   <></>
                 )}
                 <div>
-                  <div className="text-[11.5px] text-primary-400">URL</div>
+                  <div className="text-[11.5px] text-primary-400 after:content-['*'] after:ml-0.5 after:text-[#ce4c5c]">URL</div>
                   <input
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}

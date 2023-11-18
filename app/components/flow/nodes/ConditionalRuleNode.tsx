@@ -4,6 +4,7 @@ import { CustomNodeProps } from "../flow.types";
 import Image from "next/image";
 import useValidatorFn from "../utils/Validation";
 import ConditionalRuleDialog from "../../dialog/ConditionalRuleDialog";
+import { getShadowCssPropertyForNode } from "../options/flow.option";
 
 const ConditionalRuleNode = ({
   id,
@@ -14,11 +15,15 @@ const ConditionalRuleNode = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const color = data.color || "#006acc";
-
   return (
     <div
+      style={{
+        boxShadow: getShadowCssPropertyForNode(data.state),
+        borderWidth: data.state == "none" ? "1.6px" : "",
+        borderColor: data.state == "none" ? "#212121" : "",
+      }}
       onClick={() => setIsOpen(true)}
-      className="bg-[#444444] w-[320px] h-[61.6px] shadow-xl border-[1.6px] border-[#212121] rounded-[32px]"
+      className="bg-[#444444] w-[320px] h-[61.6px] rounded-[32px]"
     >
       <div className="flex justify-start ms-1">
         <div

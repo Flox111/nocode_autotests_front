@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, useContext, useState } from "react";
+import React, { FC, createRef, useContext, useRef, useState } from "react";
 import Image from "next/image";
 import CustomDialog from "./CustomDialog";
 import { CustomDialogProps } from "../flow/flow.types";
@@ -8,6 +8,7 @@ import { Tab } from "@headlessui/react";
 import CustomListBox, { ListParameter } from "../listbox/CustomListBox";
 import { NodeContext } from "../context";
 import { Node } from "reactflow";
+import { ConditionConfig } from "../flow/nodes/nodes.config.";
 
 const conditions: ListParameter[] = [
   { id: 1, name: "РАВНО" },
@@ -16,21 +17,33 @@ const conditions: ListParameter[] = [
   { id: 4, name: "НЕ СОДЕЖИТ" },
 ];
 
+const getCondition = (config: ConditionConfig) => {
+  return (
+    conditions.find((it) => {
+      return it.name == config?.condition;
+    }) || conditions[0]
+  );
+};
+
 const MakeRequestDetails: FC<CustomDialogProps> = ({
   isOpen,
   closeModal,
   id,
   nodeProps,
 }: CustomDialogProps) => {
-  const [param, setParam] = useState("");
-  const [value, setValue] = useState("");
-
   const { setNodes, nodes } = useContext(NodeContext);
 
-  const [selected, setSelected] = useState(conditions[0]);
+  const currentNode = nodes?.find((it) => {
+    return it.id == id;
+  });
+  const config = currentNode?.data.config;
+
+  const [param, setParam] = useState(config?.param || "");
+  const [value, setValue] = useState(config?.value || "");
+  const [selected, setSelected] = useState(getCondition(config));
 
   const apply = () => {
-    const config = {
+    const newConfig = {
       param: param,
       value: value,
       condition: selected.name,
@@ -40,7 +53,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
         if (node.id === id) {
           node.data = {
             ...node.data,
-            config: config,
+            config: newConfig,
           };
         }
         return node;
@@ -49,8 +62,15 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
     closeModal();
   };
 
+  const close = () => {
+    setParam(config?.param || "");
+    setValue(config?.value || "");
+    setSelected(getCondition(config));
+    closeModal();
+  };
+
   return (
-    <CustomDialog isOpen={isOpen} closeModal={closeModal} id={id}>
+    <CustomDialog isOpen={isOpen} closeModal={close} id={id}>
       <div className="flex-1 flex flex-col gap-3 text-primary-100 border-primary-300 border-b-[1px] pb-7">
         <div className="flex justify-between border-primary-300 border-b-[1px] w-full">
           <div className="text-[12.5px] font-semibold mx-[10px] my-[10px] self-center">
@@ -59,7 +79,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
           <button
             type="button"
             className="flex w-[24px] h-[24px] self-center justify-center items-center rounded-[4px] me-[10px] hover:bg-primary-300/[0.1]"
-            onClick={closeModal}
+            onClick={close}
           >
             <Image
               src="/close.svg"
@@ -108,34 +128,34 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
           </Tab.List>
           <Tab.Panels className="mx-[10px] text-primary-400">
             <Tab.Panel>
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="text-[11.5px] text-primary-400 h-1">
-                    Параметр
-                  </div>
-                  <div></div>
-                  <div className="text-[11.5px] text-primary-400">Значение</div>
-                  <textarea
-                    value={param}
-                    onChange={(e) => setParam(e.target.value)}
-                    className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+              <div className="grid grid-cols-3 gap-2">
+                <div className="text-[11.5px] text-primary-400 h-1">
+                  Параметр
+                </div>
+                <div></div>
+                <div className="text-[11.5px] text-primary-400">Значение</div>
+                <textarea
+                  value={param}
+                  onChange={(e) => setParam(e.target.value)}
+                  className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
                       rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 
                       disabled:shadow-none resize-none h-[40px] scrollable"
-                  />
-                  <div>
-                    <CustomListBox
-                      parameters={conditions}
-                      selected={selected}
-                      setSelected={setSelected}
-                    />
-                  </div>
-                  <textarea
-                    value={value}
-                    onChange={(e) => setValue(e.target.value)}
-                    className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
-                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 
-                      disabled:shadow-none resize-none min-h-[150px] max-h-72 scrollable"
+                />
+                <div>
+                  <CustomListBox
+                    parameters={conditions}
+                    selected={selected}
+                    setSelected={setSelected}
                   />
                 </div>
+                <textarea
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 
+                      disabled:shadow-none resize-none min-h-[150px] max-h-72 scrollable"
+                />
+              </div>
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>
