@@ -71,3 +71,7 @@ export const getShadowCssPropertyForNode= (state?: string) => {
       return "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.1) 0px 8px 10px -6px";
   }
 };
+
+export const isEmpty = (str: string) => {
+  return str == null || str == ""
+}

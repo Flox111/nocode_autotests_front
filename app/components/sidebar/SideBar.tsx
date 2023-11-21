@@ -12,8 +12,10 @@ const SideBar = () => {
       </div>
 
       <Block title="Управляющие">
-        <BlockCard type='startTriggerNode' description="Запустить сценарий" color="#1e1e1e" icon="/trigger.svg"/>
-        <BlockCard type='finishTriggerNode' description="Завершить сценарий" color="#12a867" icon="/trigger.svg"/>
+        <BlockCard type='startNode' description="Запустить сценарий" color="#1e1e1e" icon="/trigger.svg"/>
+        <BlockCard type='finishSuccessNode' description="Сценарий успешно выполнен" color="#12a867" icon="/trigger.svg"/>
+        <BlockCard type='finishErrorNode' description="Сценарий не выполнен" color="#ce4c5c" icon="/trigger.svg"/>
+        <BlockCard type='pauseNode' description="Поставить на паузу" color="#fdb52a" icon="/pause.svg"/>
       </Block>
 
       <Block title="Работа с сетью">

@@ -1,15 +1,14 @@
 import { useCallback, useContext } from "react";
 import { Edge, Node, getConnectedEdges } from "reactflow";
 
-const runFlow = (
+export const runFlow = (
   nodes: Node[] | undefined,
   edges: Edge[] | undefined,
   setNodes: any
 ) => {
-  const startNode = nodes?.find((it) => it.type == "startTriggerNode");
+  const startNode = nodes?.find((it) => it.type == "startNode");
 
   const recursiveFlow = (currentNode: Node | undefined) => {
-    console.log(currentNode);
     if (currentNode != null && nodes != null) {
       setNodes((nds: Node[]) =>
         nds.map((node) => {
@@ -22,11 +21,12 @@ const runFlow = (
           return node;
         })
       );
-      const outgoingEdges = getConnectedEdges([currentNode], edges || []).filter(
-        (edge: Edge) => {
-          return edge.source == currentNode.id;
-        }
-      );
+      const outgoingEdges = getConnectedEdges(
+        [currentNode],
+        edges || []
+      ).filter((edge: Edge) => {
+        return edge.source == currentNode.id;
+      });
       if (outgoingEdges.length > 0) {
         const nextNode = nodes.find((node: Node) => {
           return node.id == outgoingEdges[0].target;
@@ -39,4 +39,14 @@ const runFlow = (
   recursiveFlow(startNode);
 };
 
-export default runFlow;
+export const resetFlow = (nodes: Node[] | undefined, setNodes: any) => {
+  setNodes((nds: Node[]) =>
+    nds.map((node) => {
+      node.data = {
+        ...node.data,
+        state: "none",
+      };
+      return node;
+    })
+  );
+};

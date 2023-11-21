@@ -1,13 +1,17 @@
 import { NodeContext } from "../context";
 import { useContext } from "react";
-import runFlow from "../flow/utils/RunFlow";
+import { resetFlow, runFlow } from "../flow/utils/RunFlow";
 
 const Header = () => {
-  const { setNodes, nodes, edges} = useContext(NodeContext);
+  const { setNodes, nodes, edges } = useContext(NodeContext);
 
-  const onClick = () => {
-    runFlow(nodes, edges, setNodes)
-  }
+  const start = () => {
+    runFlow(nodes, edges, setNodes);
+  };
+
+  const reset = () => {
+    resetFlow(nodes, setNodes);
+  };
 
   return (
     <div className="bg-primary-200 py-[10px] h-[6%]">
@@ -18,10 +22,16 @@ const Header = () => {
         </h2>
         <div className="text-[#d9d9d9] text-[12px] mr-[10px] self-center justify-self-end">
           <button
-            onClick={onClick}
-            className="bg-[#444444] rounded-[4px] px-[8px] hover:bg-primary-400/[0.5]"
+            onClick={start}
+            className="bg-[#444444] rounded-[4px] px-[8px] hover:bg-primary-400/[0.5] mr-1"
           >
             Запустить сценарий
+          </button>
+          <button
+            onClick={reset}
+            className="bg-[#444444] rounded-[4px] px-[8px] hover:bg-primary-400/[0.5]"
+          >
+            Сброс
           </button>
         </div>
       </div>
@@ -30,4 +40,3 @@ const Header = () => {
 };
 
 export default Header;
-

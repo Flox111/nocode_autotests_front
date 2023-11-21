@@ -4,7 +4,8 @@ import { CustomNodeProps } from "../flow.types";
 import Image from "next/image";
 import useValidatorFn from "../utils/Validation";
 import ConditionalRuleDialog from "../../dialog/ConditionalRuleDialog";
-import { getShadowCssPropertyForNode } from "../options/flow.option";
+import { getShadowCssPropertyForNode, isEmpty } from "../options/flow.option";
+import { ConditionConfig } from "./nodes.config.";
 
 const ConditionalRuleNode = ({
   id,
@@ -15,6 +16,24 @@ const ConditionalRuleNode = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const color = data.color || "#006acc";
+
+  const config = data.config as ConditionConfig;
+
+  const isValid = () => {
+    console.log(config)
+    return (
+      config != null &&
+      !isEmpty(config.param) &&
+      !isEmpty(config.value) &&
+      !isEmpty(config.condition)
+    );
+  };
+
+  let image = null;
+  if (!isValid()) {
+    image = "/customize.svg";
+  }
+
   return (
     <div
       style={{
@@ -44,6 +63,15 @@ const ConditionalRuleNode = ({
           <div className="font-semibold text-[13.5px]">{data.title}</div>
           <div className="text-[12.5px]">{data.description}</div>
         </div>
+        {image && (
+          <Image
+            src={image}
+            className="ml-auto mr-3 mt-3 self-start"
+            alt="state"
+            height={16}
+            width={16}
+          />
+        )}
       </div>
       <ConditionalRuleDialog
         isOpen={isOpen}

@@ -1,17 +1,13 @@
-import React, { FC, memo, useState } from "react";
+import React, { memo, useState } from "react";
 import { Handle, Position } from "reactflow";
 import { CustomNodeProps } from "../flow.types";
 import Image from "next/image";
 import useValidatorFn from "../utils/Validation";
-import {
-  getImageForState,
-  getShadowCssPropertyForNode,
-  isEmpty,
-} from "../options/flow.option";
-import MakeRequestDetails from "../../dialog/MakeRequestDetails";
-import { MakeRequestConfig } from "./nodes.config.";
+import { getShadowCssPropertyForNode, isEmpty } from "../options/flow.option";
+import { ConditionConfig, PauseConfig } from "./nodes.config.";
+import PauseDialog from "../../dialog/PauseDialog";
 
-const MakeRequestNode = ({
+const ConditionalRuleNode = ({
   id,
   data,
 }: {
@@ -19,13 +15,13 @@ const MakeRequestNode = ({
   id: string;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-
   const color = data.color || "#006acc";
 
-  const config = data.config as MakeRequestConfig;
+  const config = data.config as PauseConfig;
 
   const isValid = () => {
-    return config != null && !isEmpty(config.url);
+    console.log(config);
+    return config != null && !isEmpty(config.value);
   };
 
   let image = null;
@@ -72,7 +68,7 @@ const MakeRequestNode = ({
           />
         )}
       </div>
-      <MakeRequestDetails
+      <PauseDialog
         isOpen={isOpen}
         closeModal={() => setIsOpen(false)}
         id={id}
@@ -89,4 +85,4 @@ const MakeRequestNode = ({
   );
 };
 
-export default memo(MakeRequestNode);
+export default memo(ConditionalRuleNode);

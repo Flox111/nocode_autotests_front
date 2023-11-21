@@ -1,6 +1,6 @@
 "use client";
 
-import React, { FC, useContext, useState } from "react";
+import React, { FC, useContext, useRef, useState } from "react";
 import Image from "next/image";
 import CustomDialog from "./CustomDialog";
 import { CustomDialogProps } from "../flow/flow.types";
@@ -15,6 +15,7 @@ import {
 import { TailSpin } from "react-loading-icons";
 import { NodeContext } from "../context";
 import { Node } from "reactflow";
+import { MakeRequestConfig } from "../flow/nodes/nodes.config.";
 
 const methods: ListParameter[] = [
   { id: 1, name: "GET" },
@@ -23,46 +24,52 @@ const methods: ListParameter[] = [
   { id: 4, name: "PUT" },
 ];
 
+const getMethod = (config: MakeRequestConfig) => {
+  return (
+    methods.find((it) => {
+      return it.name == config?.method;
+    }) || methods[0]
+  );
+};
+
 const MakeRequestDetails: FC<CustomDialogProps> = ({
   isOpen,
   closeModal,
   id,
   nodeProps,
 }: CustomDialogProps) => {
-  const [url, setUrl] = useState("");
-  const [headers, setHeaders] = useState<Header[]>([]);
+  const { setNodes, nodes } = useContext(NodeContext);
+  const currentNode = nodes?.find((it) => {
+    return it.id == id;
+  });
+  const config = currentNode?.data.config;
+
+  const [url, setUrl] = useState(config?.url || "");
+  const [headers, setHeaders] = useState<Map<string, string>>(
+    config?.headers || new Map()
+  );
   const [headerKey, setHeaderKey] = useState("");
   const [headerValue, setHeaderValue] = useState("");
-  const [selected, setSelected] = useState(methods[0]);
-  const [requestBody, setRequestBody] = useState("");
+  const [selected, setSelected] = useState(getMethod(config));
+  const [requestBody, setRequestBody] = useState(config?.body || "");
   const [responseBody, setResponseBody] = useState<ResultProps>();
   const [statusTestRequest, setStatusTestRequest] = useState("none");
-
-  const { setNodes, nodes } = useContext(NodeContext);
+  const bodyTextAreaRef = useRef<HTMLTextAreaElement>(null);
+  const [blockTitle, setBlockTitle] = useState(currentNode?.data.title || "");
 
   const addHeader = () => {
-    const newHeader: Header = {
-      key: headerKey,
-      value: headerValue,
-    };
     if (headerKey == "" || headerValue == "") return;
-    if (
-      headers.filter((header) => {
-        return header.key == newHeader.key;
-      }).length == 0
-    ) {
-      setHeaders((hs: Header[]) => hs.concat(newHeader));
-    }
+    const newState = new Map(headers);
+    newState.set(headerKey, headerValue);
+    setHeaders(newState);
     setHeaderKey("");
     setHeaderValue("");
   };
 
   const deleteHeader = (key: string) => {
-    setHeaders(
-      headers.filter((header) => {
-        return header.key != key;
-      })
-    );
+    const newState = new Map(headers);
+    newState.delete(key);
+    setHeaders(newState);
   };
 
   const testRequest = async () => {
@@ -70,7 +77,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
       method: selected.name,
       url: url,
       headers: headers,
-      data: requestBody,
+      body: requestBody,
     };
     setStatusTestRequest("waiting");
     setResponseBody(
@@ -82,8 +89,6 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
   };
 
   const apply = () => {
-    const h: Map<string, string> = new Map();
-    headers.map((header) => h.set(header.key, header.value));
     let method = "";
     if (nodeProps?.type === "getRequest") {
       method = "GET";
@@ -96,17 +101,18 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
     } else if (nodeProps?.type === "httpRequest") {
       method = selected.name;
     }
-    const config = {
+    const config: MakeRequestConfig = {
       method: method,
       url: url,
-      headers: h,
-      data: requestBody,
+      headers: headers,
+      body: requestBody,
     };
     setNodes((nds: Node[]) =>
       nds.map((node) => {
         if (node.id === id) {
           node.data = {
             ...node.data,
+            title: blockTitle,
             config: config,
           };
         }
@@ -116,8 +122,18 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
     closeModal();
   };
 
+  const close = () => {
+    console.log(config?.headers);
+    setUrl(config?.body || "");
+    setHeaders(config?.headers || new Map());
+    setSelected(getMethod(config));
+    setRequestBody(config?.body || "");
+    setBlockTitle(currentNode?.data.title || "");
+    closeModal();
+  };
+
   return (
-    <CustomDialog isOpen={isOpen} closeModal={closeModal} id={id}>
+    <CustomDialog isOpen={isOpen} closeModal={close} id={id}>
       <div className="flex-1 flex flex-col gap-3 text-primary-100 border-primary-300 border-b-[1px] pb-7">
         <div className="flex justify-between border-primary-300 border-b-[1px] w-full">
           <div className="text-[12.5px] font-semibold mx-[10px] my-[10px] self-center">
@@ -126,7 +142,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
           <button
             type="button"
             className="flex w-[24px] h-[24px] self-center justify-center items-center rounded-[4px] me-[10px] hover:bg-primary-300/[0.1]"
-            onClick={closeModal}
+            onClick={close}
           >
             <Image
               src="/close.svg"
@@ -144,9 +160,11 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
           </div>
           <div className="text-[11.5px] text-primary-400">Название блока</div>
           <input
+            value={blockTitle}
+            onChange={(e) => setBlockTitle(e.target.value)}
             className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
                       rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none"
-          ></input>
+          />
         </div>
         <Tab.Group>
           <Tab.List className="flex justify-around text-[13px] border-primary-300 border-b-[1px] mx-[10px]">
@@ -208,7 +226,9 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                   <></>
                 )}
                 <div>
-                  <div className="text-[11.5px] text-primary-400 after:content-['*'] after:ml-0.5 after:text-[#ce4c5c]">URL</div>
+                  <div className="text-[11.5px] text-primary-400 after:content-['*'] after:ml-0.5 after:text-[#ce4c5c]">
+                    URL
+                  </div>
                   <input
                     value={url}
                     onChange={(e) => setUrl(e.target.value)}
@@ -219,37 +239,39 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                 <div className="text-[11.5px]">Заголовки</div>
                 <div className="mt-1 w-full py-1 min-h-[50px] bg-black/[0.1] border-[0.8px] border-white/[0.14] rounded-[4px] text-[11.5px] shadow-sm">
                   <div className="flex flex-col gap-1 w-full">
-                    {headers.map(({ key, value }) => (
-                      <div
-                        key={key}
-                        className="flex hover:bg-primary-400/[0.1] px-3 items-center"
-                      >
-                        {
-                          <>
-                            <div className="text-primary-400 text-ellipsis max-w-[33ch] overflow-hidden">
-                              {key}
-                            </div>
-                            <div>&nbsp;:&nbsp;</div>
-                            <div className="text-primary-100 text-ellipsis max-w-[33ch] overflow-hidden">
-                              {value}
-                            </div>
-                          </>
-                        }
-                        <button
-                          type="button"
-                          onClick={() => deleteHeader(key)}
-                          className="flex w-[24px] h-[24px] ml-auto self-center justify-center items-center rounded-[4px] me-[10px] hover:bg-primary-400/[0.1]"
+                    {Array.from(headers.entries()).map(([key, value]) => {
+                      return (
+                        <div
+                          key={key}
+                          className="flex hover:bg-primary-400/[0.1] px-3 items-center"
                         >
-                          <Image
-                            className="fill-primary-400 z-10"
-                            src="/delete.svg"
-                            alt="delete"
-                            width={14}
-                            height={14}
-                          />
-                        </button>
-                      </div>
-                    ))}
+                          {
+                            <>
+                              <div className="text-primary-400 text-ellipsis max-w-[33ch] overflow-hidden">
+                                {key}
+                              </div>
+                              <div>&nbsp;:&nbsp;</div>
+                              <div className="text-primary-100 text-ellipsis max-w-[33ch] overflow-hidden">
+                                {value}
+                              </div>
+                            </>
+                          }
+                          <button
+                            type="button"
+                            onClick={() => deleteHeader(key)}
+                            className="flex w-[24px] h-[24px] ml-auto self-center justify-center items-center rounded-[4px] me-[10px] hover:bg-primary-400/[0.1]"
+                          >
+                            <Image
+                              className="fill-primary-400 z-10"
+                              src="/delete.svg"
+                              alt="delete"
+                              width={14}
+                              height={14}
+                            />
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
                 <div className="flex gap-2">
@@ -282,11 +304,14 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
 
                 <div className="text-[11.5px]">Тело запроса</div>
                 <textarea
+                  ref={bodyTextAreaRef}
                   value={requestBody}
-                  onChange={(e) => setRequestBody(e.target.value)}
-                  className="fmt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                  onChange={(e) => {
+                    setRequestBody(e.target.value);
+                  }}
+                  className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
                       rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none
-                      resize-none scrollable h-72"
+                      resize-none scrollable h-24 max-h-72"
                 />
               </>
             </Tab.Panel>

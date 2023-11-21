@@ -10,22 +10,7 @@ import { NodeContext } from "../context";
 import { Node } from "reactflow";
 import { ConditionConfig } from "../flow/nodes/nodes.config.";
 
-const conditions: ListParameter[] = [
-  { id: 1, name: "РАВНО" },
-  { id: 2, name: "НЕ РАВНО" },
-  { id: 3, name: "СОДЕРЖИТ" },
-  { id: 4, name: "НЕ СОДЕЖИТ" },
-];
-
-const getCondition = (config: ConditionConfig) => {
-  return (
-    conditions.find((it) => {
-      return it.name == config?.condition;
-    }) || conditions[0]
-  );
-};
-
-const MakeRequestDetails: FC<CustomDialogProps> = ({
+const PauseDialog: FC<CustomDialogProps> = ({
   isOpen,
   closeModal,
   id,
@@ -37,16 +22,12 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
   });
   const config = currentNode?.data.config;
 
-  const [param, setParam] = useState(config?.param || "");
   const [value, setValue] = useState(config?.value || "");
   const [blockTitle, setBlockTitle] = useState(currentNode?.data.title || "");
-  const [selected, setSelected] = useState(getCondition(config));
 
   const apply = () => {
     const newConfig = {
-      param: param,
       value: value,
-      condition: selected.name,
     };
     setNodes((nds: Node[]) =>
       nds.map((node) => {
@@ -64,10 +45,8 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
   };
 
   const close = () => {
-    setParam(config?.param || "");
     setValue(config?.value || "");
-    setBlockTitle(currentNode?.data.title || "")
-    setSelected(getCondition(config));
+    setBlockTitle(currentNode?.data.title || "");
     closeModal();
   };
 
@@ -94,8 +73,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
         </div>
         <div className="mx-[10px]">
           <div className="text-[11.5px] mb-2">
-            Задайте условие для выполнения True ветки. Если это условие не
-            выполняется, будут выполнены действия в False ветке
+            Задайте время (мс), в течении которого запущенный сценарий остановит свое выполнение
           </div>
           <div className="text-[11.5px] text-primary-400">Название блока</div>
           <input
@@ -132,34 +110,15 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
           </Tab.List>
           <Tab.Panels className="mx-[10px] text-primary-400">
             <Tab.Panel>
-              <div className="grid grid-cols-3 gap-2">
-                <div className="text-[11.5px] text-primary-400 h-1">
-                  Параметр
+                <div className="text-[11.5px] mb-4 text-primary-400 h-1 after:content-['*'] after:ml-0.5 after:text-[#ce4c5c]">
+                  Пауза (мс)
                 </div>
-                <div></div>
-                <div className="text-[11.5px] text-primary-400">Значение</div>
-                <textarea
-                  value={param}
-                  onChange={(e) => setParam(e.target.value)}
-                  className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
-                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 
-                      disabled:shadow-none resize-none h-[40px] scrollable"
-                />
-                <div>
-                  <CustomListBox
-                    parameters={conditions}
-                    selected={selected}
-                    setSelected={setSelected}
-                  />
-                </div>
-                <textarea
+                <input
                   value={value}
                   onChange={(e) => setValue(e.target.value)}
                   className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
-                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 
-                      disabled:shadow-none resize-none min-h-[150px] max-h-72 scrollable"
+                      rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none"
                 />
-              </div>
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>
@@ -177,4 +136,4 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
   );
 };
 
-export default MakeRequestDetails;
+export default PauseDialog;
