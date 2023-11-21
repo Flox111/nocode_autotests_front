@@ -14,7 +14,7 @@ const Header = () => {
   };
 
   return (
-    <div className="bg-primary-200 py-[10px] h-[6%]">
+    <div className="bg-primary-200 py-[10px] h-[6%] border-[#3b3b3b] border-b-[1px]">
       <div className="grid grid-cols-3">
         <div></div>
         <h2 className="text-[#d9d9d9] text-[18px] font-semibold justify-self-center">
