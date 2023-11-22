@@ -14,3 +14,7 @@ export interface ConditionConfig {
 export interface PauseConfig {
     value: string,
 }
+
+export interface ExtractParamsConfig {
+    params: Map<string, string>,
+}

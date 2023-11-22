@@ -3,9 +3,10 @@ import CustomEdge from "./edges/CustomEdge";
 import ConditionalRuleNode from "./nodes/ConditionalRuleNode";
 import FinishTriggerNode from "./nodes/FinishTriggerNode";
 import StartTriggerNode from "./nodes/StartTriggerNode";
-import { ConditionConfig, MakeRequestConfig, PauseConfig } from "./nodes/nodes.config.";
+import { ConditionConfig, ExtractParamsConfig, MakeRequestConfig, PauseConfig } from "./nodes/nodes.config.";
 import MakeRequestNode from "./nodes/MakeRequestNode";
 import PauseNode from "./nodes/PauseNode";
+import ExtractParamsNode from "./nodes/ExtractParamsNode";
 
 export interface CustomNodeProps {
     title: string,
@@ -13,7 +14,7 @@ export interface CustomNodeProps {
     icon: string,
     color?: string,
     state?: "success" | "fail" | "process" | "none" | undefined,
-    config?: MakeRequestConfig | ConditionConfig | PauseConfig,
+    config?: MakeRequestConfig | ConditionConfig | PauseConfig | ExtractParamsConfig,
     type?: string
 }
 
@@ -27,7 +28,8 @@ export const nodeTypes = {
     startNode: StartTriggerNode,
     finishSuccessNode: FinishTriggerNode,
     finishErrorNode: FinishTriggerNode,
-    pauseNode: PauseNode
+    pauseNode: PauseNode,
+    extractParamsNode: ExtractParamsNode
 };
 
 export const edgeTypes: EdgeTypes = {
