@@ -6,8 +6,13 @@ export interface MakeRequestConfig {
 }
 
 export interface ConditionConfig {
+    allConditionsTrue: Condition[],
+    oneOfConditionsTrue: Condition[]
+}
+
+export type Condition = {
     param: string,
-    value: string,
+    expectedValue: string,
     condition: string,
 }
 

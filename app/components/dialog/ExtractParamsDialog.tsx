@@ -173,21 +173,19 @@ const PauseDialog: FC<CustomDialogProps> = ({
                       <tr key={key}>
                         <td>
                           <textarea
+                            defaultValue={key}
                             readOnly
                             className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
                         rounded-[4px] text-[11.5px] shadow-sm resize-none scrollable"
-                          >
-                            {key}
-                          </textarea>
+                          />
                         </td>
                         <td>
                           <textarea
+                            defaultValue={value}
                             readOnly
                             className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
                         rounded-[4px] text-[11.5px] shadow-sm resize-none scrollable"
-                          >
-                            {value}
-                          </textarea>
+                          />
                         </td>
                         <td className="flex items-center">
                           <button

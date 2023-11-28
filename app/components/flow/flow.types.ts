@@ -7,6 +7,7 @@ import { ConditionConfig, ExtractParamsConfig, MakeRequestConfig, PauseConfig } 
 import MakeRequestNode from "./nodes/MakeRequestNode";
 import PauseNode from "./nodes/PauseNode";
 import ExtractParamsNode from "./nodes/ExtractParamsNode";
+import ClearParamsNode from "./nodes/ClearParamsNode";
 
 export interface CustomNodeProps {
     title: string,
@@ -29,7 +30,8 @@ export const nodeTypes = {
     finishSuccessNode: FinishTriggerNode,
     finishErrorNode: FinishTriggerNode,
     pauseNode: PauseNode,
-    extractParamsNode: ExtractParamsNode
+    extractParamsNode: ExtractParamsNode,
+    clearParamsNode: ClearParamsNode
 };
 
 export const edgeTypes: EdgeTypes = {

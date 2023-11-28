@@ -158,6 +158,22 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
             Настройте параметры для отправки или получения данных с помощью
             HTTP-запроса
           </div>
+          <div className="text-[11.5px] mb-2">
+            После выполнения этого блока будут созданы и заполнены следующие
+            переменные, которые вы можете использовать в других операциях:
+          </div>
+          <ul className="text-[11.5px] mb-3">
+            <li>
+              <div className="text-primary-400 inline-block">
+                response.status
+              </div>{" "}
+              - статус ответа
+            </li>
+            <li>
+              <div className="text-primary-400 inline-block">response.body</div>{" "}
+              - тело ответа
+            </li>
+          </ul>
           <div className="text-[11.5px] text-primary-400">Название блока</div>
           <input
             value={blockTitle}

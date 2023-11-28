@@ -4,20 +4,25 @@ import React, { FC, createRef, useContext, useRef, useState } from "react";
 import Image from "next/image";
 import CustomDialog from "./CustomDialog";
 import { CustomDialogProps } from "../flow/flow.types";
-import { Tab } from "@headlessui/react";
+import { Switch, Tab } from "@headlessui/react";
 import CustomListBox, { ListParameter } from "../listbox/CustomListBox";
 import { NodeContext } from "../context";
 import { Node } from "reactflow";
-import { ConditionConfig } from "../flow/nodes/nodes.config.";
+import { Condition } from "../flow/nodes/nodes.config.";
+import { hashCode } from "../flow/options/flow.option";
 
 const conditions: ListParameter[] = [
   { id: 1, name: "РАВНО" },
   { id: 2, name: "НЕ РАВНО" },
   { id: 3, name: "СОДЕРЖИТ" },
   { id: 4, name: "НЕ СОДЕЖИТ" },
+  { id: 3, name: "БОЛЬШЕ" },
+  { id: 4, name: "БОЛЬШЕ ИЛИ РАВНО" },
+  { id: 3, name: "МЕНЬШЕ" },
+  { id: 4, name: "МЕНЬШЕ ИЛИ РАВНО" },
 ];
 
-const getCondition = (config: ConditionConfig) => {
+const getCondition = (config: Condition) => {
   return (
     conditions.find((it) => {
       return it.name == config?.condition;
@@ -37,17 +42,53 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
   });
   const config = currentNode?.data.config;
 
-  const [param, setParam] = useState(config?.param || "");
-  const [value, setValue] = useState(config?.value || "");
   const [blockTitle, setBlockTitle] = useState(currentNode?.data.title || "");
-  const [selected, setSelected] = useState(getCondition(config));
+
+  const [param, setParam] = useState("");
+  const [expectedValue, setExpectedValue] = useState("");
+  const [allConditionsTrue, setAllConditionsTrue] = useState<Condition[]>(
+    config?.allConditionsTrue || []
+  );
+
+  const [selected, setSelected] = useState(conditions[0]);
+
+  const addCondition = () => {
+    if (
+      param == "" ||
+      expectedValue == "" ||
+      allConditionsTrue.filter((it) => {
+        return (
+          it.param == param &&
+          it.condition == selected.name &&
+          it.expectedValue == expectedValue
+        );
+      }).length > 0
+    )
+      return;
+
+    const newCondition = {
+      param: param,
+      expectedValue: expectedValue,
+      condition: selected.name,
+    };
+    const newState = [...allConditionsTrue, newCondition];
+    setAllConditionsTrue(newState);
+    setParam("");
+    setExpectedValue("");
+  };
+
+  const deleteCondition = (index: number) => {
+    const newState = allConditionsTrue.filter((it, i) => {
+      return i != index;
+    });
+    setAllConditionsTrue(newState);
+  };
 
   const apply = () => {
     const newConfig = {
-      param: param,
-      value: value,
-      condition: selected.name,
+      allConditionsTrue: allConditionsTrue,
     };
+
     setNodes((nds: Node[]) =>
       nds.map((node) => {
         if (node.id === id) {
@@ -64,10 +105,11 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
   };
 
   const close = () => {
-    setParam(config?.param || "");
-    setValue(config?.value || "");
-    setBlockTitle(currentNode?.data.title || "")
-    setSelected(getCondition(config));
+    setParam("");
+    setExpectedValue("");
+    setAllConditionsTrue(config?.allConditionsTrue || []);
+    setBlockTitle(currentNode?.data.title || "");
+    setSelected(conditions[0]);
     closeModal();
   };
 
@@ -153,17 +195,89 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                   />
                 </div>
                 <textarea
-                  value={value}
-                  onChange={(e) => setValue(e.target.value)}
+                  value={expectedValue}
+                  onChange={(e) => setExpectedValue(e.target.value)}
                   className="mt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
                       rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 
-                      disabled:shadow-none resize-none min-h-[150px] max-h-72 scrollable"
+                      disabled:shadow-none resize-none h-[40px] max-h-72 scrollable"
                 />
               </div>
+              <div className="w-full flex mt-2">
+                <button
+                  onClick={addCondition}
+                  className="bg-primary-500 ml-auto text-primary-100 text-[11.5px] 
+                    rounded-[4px] px-[8px] py-[2px] hover:bg-primary-500/[0.5]"
+                >
+                  Добавить условие
+                </button>
+              </div>
+              <table className="p-1 w-full border-[0.8px] border-white/[0.14] mt-6 border-spacing-1 border-separate">
+                <thead>
+                  <tr className="text-[11.5px]">
+                    <th>Переменная</th>
+                    <th>Условие</th>
+                    <th>Ожидаемое значение</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {allConditionsTrue.map((it, index) => {
+                    console.log(it);
+                    return (
+                      <tr
+                        key={hashCode(
+                          it.param + it.condition + it.expectedValue
+                        )}
+                      >
+                        <td>
+                          <textarea
+                            defaultValue={it.param}
+                            readOnly
+                            className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                        rounded-[4px] text-[11.5px] shadow-sm resize-none scrollable"
+                          />
+                        </td>
+                        <td>
+                          <textarea
+                            defaultValue={it.condition}
+                            readOnly
+                            className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                        rounded-[4px] text-[11.5px] shadow-sm resize-none scrollable"
+                          />
+                        </td>
+                        <td>
+                          <textarea
+                            defaultValue={it.expectedValue}
+                            readOnly
+                            className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                        rounded-[4px] text-[11.5px] shadow-sm resize-none scrollable"
+                          />
+                        </td>
+                        <td className="flex items-center">
+                          <button
+                            type="button"
+                            onClick={() => deleteCondition(index)}
+                            className="flex p-1 self-center justify-center items-center rounded-[4px] me-[10px] hover:bg-primary-400/[0.1]"
+                          >
+                            <Image
+                              className="fill-primary-400 z-10"
+                              src="/delete.svg"
+                              alt="delete"
+                              width={15}
+                              height={15}
+                            />
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>
       </div>
+
       <div className="flex mx-[10px] mb-5">
         <button
           onClick={apply}

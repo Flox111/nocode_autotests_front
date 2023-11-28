@@ -68,15 +68,22 @@ const SideBar = () => {
           color="#006acc"
           icon="/location.svg"
         />
+        
+      </Block>
+
+      <Block title="Утилиты">
         <BlockCard
           type="extractParamsNode"
           description="Извлечь параметры из ответа"
           color="#747fa3"
           icon="/ElementFormBlockIcon.svg"
         />
-      </Block>
-
-      <Block title="Условные">
+        <BlockCard
+          type="clearParamsNode"
+          description="Очистить переменные"
+          color="#76b7ff"
+          icon="/DeleteParamsIcon.svg"
+        />
         <BlockCard
           type="conditionalRule"
           description="Условное правило"

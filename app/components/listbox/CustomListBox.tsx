@@ -23,7 +23,7 @@ const CustomListBox: FC<CustomListBoxProps> = ({
       <Listbox value={selected} onChange={setSelected}>
         <div className="relative mt-1 mb-2 z-20">
           <Listbox.Button
-            className="text-[12px] text-primary-100 relative w-full cursor-default rounded-lg bg-[#373737] 
+            className="text-[10px] text-primary-100 relative w-full cursor-default rounded-lg bg-[#373737] 
           py-1 pl-3 pr-10 text-left shadow-md focus:outline-none focus-visible:border-indigo-500 
           focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-opacity-75 
           focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300"
@@ -44,7 +44,7 @@ const CustomListBox: FC<CustomListBoxProps> = ({
           >
             <Listbox.Options
               className="absolute mt-1 max-h-50 w-full overflow-auto rounded-md bg-[#383838] 
-            py-1 text-[11px] text-primary-100 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+            py-1 text-[10px] text-primary-100 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
             >
               {parameters.map((parameter, id) => (
                 <Listbox.Option

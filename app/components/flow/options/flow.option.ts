@@ -1,4 +1,4 @@
-import { MarkerType } from "reactflow";
+import { Edge, MarkerType } from "reactflow";
 import { Node } from "reactflow";
 
 export const defaultEdgeOptions = {
@@ -38,12 +38,33 @@ export const addNewNode = (
       color: color,
       state: "none",
       config: null,
-      type: type
+      type: type,
     },
     position: { x: 0, y: 0 },
   };
   setNodeCount(nodeCount + 1);
   setNodes((nds: any[]) => nds.concat(newNode));
+};
+
+export const deleteNode = (
+  id: string,
+  nodes: Node[] | undefined,
+  setNodes: any,
+  edges: Edge[] | undefined,
+  setEdges: any
+) => {
+  if (nodes) {
+    const newNodesState = nodes.filter(it => {
+      return it.id != id;
+    });
+    setNodes(newNodesState);
+  }
+  if (edges) {
+    const newEdgesState = edges.filter(it => {
+      return it.source != id && it.target != id;
+    });
+    setEdges(newEdgesState);
+  }
 };
 
 export const getImageForState = (state?: string) => {
@@ -59,7 +80,7 @@ export const getImageForState = (state?: string) => {
   }
 };
 
-export const getShadowCssPropertyForNode= (state?: string) => {
+export const getShadowCssPropertyForNode = (state?: string) => {
   switch (state) {
     case "success":
       return "rgb(99, 212, 137) 0px 0px 0px 2px, rgba(99, 212, 137, 0.12) 0px 0px 0px 8px";
@@ -73,5 +94,13 @@ export const getShadowCssPropertyForNode= (state?: string) => {
 };
 
 export const isEmpty = (str: string) => {
-  return str == null || str == ""
+  return str == null || str == "";
+};
+
+export function hashCode(str: string): number {
+  var h: number = 0;
+  for (var i = 0; i < str.length; i++) {
+    h = 31 * h + str.charCodeAt(i);
+  }
+  return h & 0xffffffff;
 }
