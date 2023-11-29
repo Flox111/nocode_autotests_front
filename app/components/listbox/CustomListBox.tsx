@@ -5,6 +5,7 @@ import { CheckIcon, ChevronUpDownIcon } from "@heroicons/react/20/solid";
 export type ListParameter = {
   id: number;
   name: string;
+  f?: (a: string, b: string) => boolean
 };
 
 export type CustomListBoxProps = {

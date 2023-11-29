@@ -11,15 +11,15 @@ import { Node } from "reactflow";
 import { Condition } from "../flow/nodes/nodes.config.";
 import { hashCode } from "../flow/options/flow.option";
 
-const conditions: ListParameter[] = [
-  { id: 1, name: "РАВНО" },
-  { id: 2, name: "НЕ РАВНО" },
-  { id: 3, name: "СОДЕРЖИТ" },
-  { id: 4, name: "НЕ СОДЕЖИТ" },
-  { id: 3, name: "БОЛЬШЕ" },
-  { id: 4, name: "БОЛЬШЕ ИЛИ РАВНО" },
-  { id: 3, name: "МЕНЬШЕ" },
-  { id: 4, name: "МЕНЬШЕ ИЛИ РАВНО" },
+export const conditions: ListParameter[] = [
+  { id: 1, name: "РАВНО", f: (a: string, b: string) => a == b },
+  { id: 2, name: "НЕ РАВНО", f: (a: string, b: string) => a != b },
+  { id: 3, name: "СОДЕРЖИТ", f: (a: string, b: string) => a.includes(b) },
+  { id: 4, name: "НЕ СОДЕЖИТ", f: (a: string, b: string) => !a.includes(b) },
+  { id: 3, name: "БОЛЬШЕ", f: (a: string, b: string) => a > b },
+  { id: 4, name: "БОЛЬШЕ ИЛИ РАВНО", f: (a: string, b: string) => a >= b },
+  { id: 3, name: "МЕНЬШЕ", f: (a: string, b: string) => a < b },
+  { id: 4, name: "МЕНЬШЕ ИЛИ РАВНО", f: (a: string, b: string) => a <= b },
 ];
 
 const getCondition = (config: Condition) => {
@@ -211,68 +211,69 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                   Добавить условие
                 </button>
               </div>
-              <table className="p-1 w-full border-[0.8px] border-white/[0.14] mt-6 border-spacing-1 border-separate">
-                <thead>
-                  <tr className="text-[11.5px]">
-                    <th>Переменная</th>
-                    <th>Условие</th>
-                    <th>Ожидаемое значение</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {allConditionsTrue.map((it, index) => {
-                    console.log(it);
-                    return (
-                      <tr
-                        key={hashCode(
-                          it.param + it.condition + it.expectedValue
-                        )}
-                      >
-                        <td>
-                          <textarea
-                            defaultValue={it.param}
-                            readOnly
-                            className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+              {allConditionsTrue.length > 0 && (
+                <table className="p-1 w-full border-[0.8px] border-white/[0.14] mt-6 border-spacing-1 border-separate">
+                  <thead>
+                    <tr className="text-[11.5px]">
+                      <th>Переменная</th>
+                      <th>Условие</th>
+                      <th>Ожидаемое значение</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allConditionsTrue.map((it, index) => {
+                      return (
+                        <tr
+                          key={hashCode(
+                            it.param + it.condition + it.expectedValue
+                          )}
+                        >
+                          <td>
+                            <textarea
+                              defaultValue={it.param}
+                              readOnly
+                              className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
                         rounded-[4px] text-[11.5px] shadow-sm resize-none scrollable"
-                          />
-                        </td>
-                        <td>
-                          <textarea
-                            defaultValue={it.condition}
-                            readOnly
-                            className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
-                        rounded-[4px] text-[11.5px] shadow-sm resize-none scrollable"
-                          />
-                        </td>
-                        <td>
-                          <textarea
-                            defaultValue={it.expectedValue}
-                            readOnly
-                            className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
-                        rounded-[4px] text-[11.5px] shadow-sm resize-none scrollable"
-                          />
-                        </td>
-                        <td className="flex items-center">
-                          <button
-                            type="button"
-                            onClick={() => deleteCondition(index)}
-                            className="flex p-1 self-center justify-center items-center rounded-[4px] me-[10px] hover:bg-primary-400/[0.1]"
-                          >
-                            <Image
-                              className="fill-primary-400 z-10"
-                              src="/delete.svg"
-                              alt="delete"
-                              width={15}
-                              height={15}
                             />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          </td>
+                          <td>
+                            <textarea
+                              defaultValue={it.condition}
+                              readOnly
+                              className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                        rounded-[4px] text-[11.5px] shadow-sm resize-none scrollable"
+                            />
+                          </td>
+                          <td>
+                            <textarea
+                              defaultValue={it.expectedValue}
+                              readOnly
+                              className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                        rounded-[4px] text-[11.5px] shadow-sm resize-none scrollable"
+                            />
+                          </td>
+                          <td className="flex items-center">
+                            <button
+                              type="button"
+                              onClick={() => deleteCondition(index)}
+                              className="flex p-1 self-center justify-center items-center rounded-[4px] me-[10px] hover:bg-primary-400/[0.1]"
+                            >
+                              <Image
+                                className="fill-primary-400 z-10"
+                                src="/delete.svg"
+                                alt="delete"
+                                width={15}
+                                height={15}
+                              />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>

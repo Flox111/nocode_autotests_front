@@ -84,7 +84,7 @@ export const getShadowCssPropertyForNode = (state?: string) => {
   switch (state) {
     case "success":
       return "rgb(99, 212, 137) 0px 0px 0px 2px, rgba(99, 212, 137, 0.12) 0px 0px 0px 8px";
-    case "fail":
+    case "error":
       return "rgb(206, 76, 92) 0px 0px 0px 2px, rgba(206, 76, 92, 0.12) 0px 0px 0px 8px";
     case "process":
       return "rgb(243, 200, 49) 0px 0px 0px 2px, rgba(243, 200, 49, 0.12) 0px 0px 0px 8px";

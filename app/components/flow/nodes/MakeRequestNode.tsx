@@ -1,15 +1,17 @@
-import React, { FC, memo, useState } from "react";
+import React, { FC, memo, useContext, useState } from "react";
 import { Handle, Position } from "reactflow";
 import { CustomNodeProps } from "../flow.types";
 import Image from "next/image";
 import useValidatorFn from "../utils/Validation";
 import {
+  deleteNode,
   getImageForState,
   getShadowCssPropertyForNode,
   isEmpty,
 } from "../options/flow.option";
 import MakeRequestDetails from "../../dialog/MakeRequestDetails";
 import { MakeRequestConfig } from "./nodes.config.";
+import { NodeContext } from "../../context";
 
 const MakeRequestNode = ({
   id,
@@ -18,6 +20,8 @@ const MakeRequestNode = ({
   data: CustomNodeProps;
   id: string;
 }) => {
+  const { nodes, setNodes, edges, setEdges } = useContext(NodeContext);
+
   const [isOpen, setIsOpen] = useState(false);
 
   const color = data.color || "#006acc";
@@ -41,7 +45,7 @@ const MakeRequestNode = ({
         borderWidth: data.state == "none" ? "1.6px" : "",
         borderColor: data.state == "none" ? "#212121" : "",
       }}
-      className="bg-[#444444] w-[320px] h-[61.6px] rounded-[6px]"
+      className="bg-[#444444] w-[320px] h-[61.6px] rounded-[6px] group"
     >
       <div className="flex justify-start ms-1">
         <div
@@ -85,6 +89,19 @@ const MakeRequestNode = ({
         position={Position.Bottom}
         isValidConnection={useValidatorFn()}
       />
+      <div
+        className="w-[46px] h-[46px] hidden group-hover:block absolute 
+        right-[-35px] top-[-25px] rounded-[4px] me-[10px]"
+      >
+        <div className="w-full h-full flex justify-end items-start">
+          <button
+            onClick={() => deleteNode(id, nodes, setNodes, edges, setEdges)}
+            className="w-[24px] h-[24px] self-start hover:bg-primary-300/[0.1]"
+          >
+            <Image src="/close.svg" alt="close" width={14} height={14} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };

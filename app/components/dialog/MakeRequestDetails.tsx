@@ -357,9 +357,9 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                               width={20}
                               height={20}
                             />
-                            <div>Test request has been successful</div>
+                            <div>Тестовый запрос выполнен успешно</div>
                           </div>
-                          <div>Status: {responseBody?.status}</div>
+                          <div>Статус запроса: {responseBody?.status}</div>
                         </div>
                       );
                     case "error":
@@ -382,7 +382,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                               </p>
                             </div>
                           </div>
-                          <div>Status: {responseBody?.status}</div>
+                          <div>Статус запроса: {responseBody?.status}</div>
                         </div>
                       );
                     case "waiting":
@@ -392,7 +392,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                         text-[11.5px] rounded-[4px] flex items-center h-14 justify-center gap-3"
                         >
                           <TailSpin height={14} width={14} />
-                          <div>Processing request...</div>
+                          <div>Ожидаем выполнение запроса...</div>
                         </div>
                       );
                     default:

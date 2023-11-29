@@ -163,48 +163,52 @@ const PauseDialog: FC<CustomDialogProps> = ({
               </div>
               {params.size > 0 && (
                 <table className="p-1 w-full border-[0.8px] border-white/[0.14] mt-6 border-spacing-1 border-separate">
-                  <tr className="text-[11.5px]">
-                    <th>Переменная</th>
-                    <th>Значение</th>
-                    <th></th>
-                  </tr>
-                  {Array.from(params.entries()).map(([key, value]) => {
-                    return (
-                      <tr key={key}>
-                        <td>
-                          <textarea
-                            defaultValue={key}
-                            readOnly
-                            className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                  <thead>
+                    <tr className="text-[11.5px]">
+                      <th>Переменная</th>
+                      <th>Значение</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Array.from(params.entries()).map(([key, value]) => {
+                      return (
+                        <tr key={key}>
+                          <td>
+                            <textarea
+                              defaultValue={key}
+                              readOnly
+                              className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
                         rounded-[4px] text-[11.5px] shadow-sm resize-none scrollable"
-                          />
-                        </td>
-                        <td>
-                          <textarea
-                            defaultValue={value}
-                            readOnly
-                            className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
-                        rounded-[4px] text-[11.5px] shadow-sm resize-none scrollable"
-                          />
-                        </td>
-                        <td className="flex items-center">
-                          <button
-                            type="button"
-                            onClick={() => deleteParam(key)}
-                            className="flex p-1 self-center justify-center items-center rounded-[4px] me-[10px] hover:bg-primary-400/[0.1]"
-                          >
-                            <Image
-                              className="fill-primary-400 z-10"
-                              src="/delete.svg"
-                              alt="delete"
-                              width={15}
-                              height={15}
                             />
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
+                          </td>
+                          <td>
+                            <textarea
+                              defaultValue={value}
+                              readOnly
+                              className="h-7 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                        rounded-[4px] text-[11.5px] shadow-sm resize-none scrollable"
+                            />
+                          </td>
+                          <td className="flex items-center">
+                            <button
+                              type="button"
+                              onClick={() => deleteParam(key)}
+                              className="flex p-1 self-center justify-center items-center rounded-[4px] me-[10px] hover:bg-primary-400/[0.1]"
+                            >
+                              <Image
+                                className="fill-primary-400 z-10"
+                                src="/delete.svg"
+                                alt="delete"
+                                width={15}
+                                height={15}
+                              />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
                 </table>
               )}
             </Tab.Panel>

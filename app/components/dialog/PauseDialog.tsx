@@ -5,7 +5,6 @@ import Image from "next/image";
 import CustomDialog from "./CustomDialog";
 import { CustomDialogProps } from "../flow/flow.types";
 import { Tab } from "@headlessui/react";
-import CustomListBox, { ListParameter } from "../listbox/CustomListBox";
 import { NodeContext } from "../context";
 import { Node } from "reactflow";
 import { ConditionConfig } from "../flow/nodes/nodes.config.";

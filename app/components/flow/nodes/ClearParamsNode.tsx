@@ -55,7 +55,6 @@ const StartTriggerNode = ({
         position={Position.Bottom}
         isValidConnection={useValidatorFn()}
       />
-      <button className="text-white hidden group-hover:block absolute right-[-30px] top-[-30px]"></button>
       <div
         className="w-[46px] h-[46px] hidden group-hover:block absolute 
         right-[-35px] top-[-25px] rounded-[4px] me-[10px]"

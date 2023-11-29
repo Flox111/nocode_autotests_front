@@ -1,11 +1,16 @@
-import React, { memo, useState } from "react";
+import React, { memo, useContext, useState } from "react";
 import { Handle, Position } from "reactflow";
 import { CustomNodeProps } from "../flow.types";
 import Image from "next/image";
 import useValidatorFn from "../utils/Validation";
 import ConditionalRuleDialog from "../../dialog/ConditionalRuleDialog";
-import { getShadowCssPropertyForNode, isEmpty } from "../options/flow.option";
+import {
+  deleteNode,
+  getShadowCssPropertyForNode,
+  isEmpty,
+} from "../options/flow.option";
 import { ConditionConfig } from "./nodes.config.";
+import { NodeContext } from "../../context";
 
 const ConditionalRuleNode = ({
   id,
@@ -14,19 +19,15 @@ const ConditionalRuleNode = ({
   data: CustomNodeProps;
   id: string;
 }) => {
+  const { nodes, setNodes, edges, setEdges } = useContext(NodeContext);
+
   const [isOpen, setIsOpen] = useState(false);
   const color = data.color || "#006acc";
 
   const config = data.config as ConditionConfig;
 
   const isValid = () => {
-    console.log(config)
-    return (
-      config != null &&
-      !isEmpty(config.param) &&
-      !isEmpty(config.value) &&
-      !isEmpty(config.condition)
-    );
+    return config != null && config.allConditionsTrue.length > 0;
   };
 
   let image = null;
@@ -42,7 +43,7 @@ const ConditionalRuleNode = ({
         borderColor: data.state == "none" ? "#212121" : "",
       }}
       onClick={() => setIsOpen(true)}
-      className="bg-[#444444] w-[320px] h-[61.6px] rounded-[32px]"
+      className="bg-[#444444] w-[320px] h-[61.6px] rounded-[32px] group"
     >
       <div className="flex justify-start ms-1">
         <div
@@ -92,6 +93,19 @@ const ConditionalRuleNode = ({
         position={Position.Right}
         isValidConnection={useValidatorFn()}
       />
+      <div
+        className="w-[46px] h-[46px] hidden group-hover:block absolute 
+        right-[-35px] top-[-25px] rounded-[4px] me-[10px]"
+      >
+        <div className="w-full h-full flex justify-end items-start">
+          <button
+            onClick={() => deleteNode(id, nodes, setNodes, edges, setEdges)}
+            className="w-[24px] h-[24px] self-start hover:bg-primary-300/[0.1]"
+          >
+            <Image src="/close.svg" alt="close" width={14} height={14} />
+          </button>
+        </div>
+      </div>
     </div>
   );
 };
