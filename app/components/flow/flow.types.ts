@@ -8,6 +8,7 @@ import MakeRequestNode from "./nodes/MakeRequestNode";
 import PauseNode from "./nodes/PauseNode";
 import ExtractParamsNode from "./nodes/ExtractParamsNode";
 import ClearParamsNode from "./nodes/ClearParamsNode";
+import { Log } from "../dialog/LogDialog";
 
 export interface CustomNodeProps {
     title: string,
@@ -42,6 +43,12 @@ export interface CustomDialogProps {
     isOpen: boolean;
     closeModal: () => void;
     children?: React.ReactNode;
-    id: string;
+    id?: string;
     nodeProps?: CustomNodeProps;
-  }
+}
+
+export interface LogDialogProps {
+    isOpen: boolean;
+    closeModal: () => void;
+    logs: Log[]
+}

@@ -8,7 +8,7 @@ import { ConditionConfig, PauseConfig } from "./nodes.config.";
 import PauseDialog from "../../dialog/PauseDialog";
 import { NodeContext } from "../../context";
 
-const ConditionalRuleNode = ({
+const PauseNode = ({
   id,
   data,
 }: {
@@ -101,4 +101,4 @@ const ConditionalRuleNode = ({
   );
 };
 
-export default memo(ConditionalRuleNode);
+export default memo(PauseNode);

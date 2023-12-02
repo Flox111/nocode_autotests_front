@@ -11,20 +11,25 @@ import {
   PauseConfig,
 } from "../nodes/nodes.config.";
 import { conditions } from "../../dialog/ConditionalRuleDialog";
+import { Log } from "../../dialog/LogDialog";
 
 export const runFlow = (
   nodes: Node[] | undefined,
   edges: Edge[] | undefined,
-  setNodes: any
+  setNodes: any,
+  setLogs: any
 ) => {
   resetFlow(nodes, setNodes);
   const startNode = nodes?.find((it) => it.type == "startNode");
   const params = new Map<string, string>();
 
+  setLogs([]);
+  const logs: Log[] = [];
+
   const recursiveFlow = async (currentNode: Node | undefined) => {
     if (currentNode != null && nodes != null) {
       let nodeStatus = "success";
-      console.log(currentNode);
+      logs.push(getLog(`Выполнение блока «${currentNode.data.description}»`));
       switch (currentNode.type) {
         case "httpRequest":
         case "getRequest":
@@ -39,31 +44,48 @@ export const runFlow = (
             headers: makeRequestConfig.headers,
             body: makeRequestConfig.body,
           };
+
+          let messageLog = "Отправка запроса с параметрами:";
+          messageLog += `\nmethod: ${makeRequestConfig.method}`;
+          messageLog += `\nurl: ${makeRequestConfig.url}`;
+          messageLog += `\nheaders: ${JSON.stringify(
+            Array.from(makeRequestConfig.headers.entries())
+          )}`;
+          messageLog += `\nbody: ${makeRequestConfig.body}`;
+          logs.push(getLog(messageLog));
+
           const response = await sendRequest(request);
           params.set("response.status", response.status.toString());
           params.set("response.body", response.body);
           if (response.state == "error") {
             nodeStatus = "error";
+            messageLog = "Ошибка во время выполнения запроса:"
+          } else {
+            messageLog = "Запрос успешно выполнен:"
           }
+          messageLog += `\nresponse.status: ${response.status.toString()}`;
+          messageLog += `\nresponse.body: ${response.body}`;
+          logs.push(getLog(messageLog));
           break;
         case "conditionalRule":
-          console.log(conditionRuleNodeHandle(currentNode, params));
+          conditionRuleNodeHandle(currentNode, params, logs);
           break;
         case "startNode":
           break;
         case "finishSuccessNode":
-          console.log("Сценарий успешно завершен");
           break;
         case "finishErrorNode":
-          console.log("Сценарий не выполнен");
           break;
         case "pauseNode":
           const pauseConfig = currentNode.data.config as PauseConfig;
           const delay = Number(pauseConfig.value);
           if (isNaN(delay)) {
             nodeStatus = "error";
+            logs.push(getLog(`Ошибка при парсинге значения ${pauseConfig.value}`));
           } else {
+            logs.push(getLog(`Поставлена пауза на ${pauseConfig.value} мс`));
             await new Promise((f) => setTimeout(f, Number(pauseConfig.value)));
+            logs.push(getLog("Пауза снята"))
           }
           break;
         case "extractParamsNode":
@@ -74,14 +96,16 @@ export const runFlow = (
             Array.from(extractParamsConfig.params.entries()).map(
               ([key, value]) => {
                 params.set(key, value);
-                console.log(`Создана переменная ${key} со значением ${value}`);
+                logs.push(
+                  getLog(`Создана переменная ${key} со значением ${value}`)
+                );
               }
             );
           }
           break;
         case "clearParamsNode":
           params.clear;
-          console.log("Переменные очищены");
+          logs.push(getLog("Переменные очищены"));
           break;
         default:
           break;
@@ -119,6 +143,19 @@ export const runFlow = (
   };
 
   recursiveFlow(startNode);
+  setLogs(logs);
+};
+
+const getLog = (message: string) => {
+  return {
+    time: getTime(),
+    message: message,
+  };
+};
+
+const getTime = () => {
+  const date = new Date();
+  return date.toLocaleTimeString();
 };
 
 export const resetFlow = (nodes: Node[] | undefined, setNodes: any) => {
@@ -133,16 +170,24 @@ export const resetFlow = (nodes: Node[] | undefined, setNodes: any) => {
   );
 };
 
-const conditionRuleNodeHandle = (node: Node, params: Map<string, string>) => {
+const conditionRuleNodeHandle = (
+  node: Node,
+  params: Map<string, string>,
+  logs: Log[]
+) => {
   const config = node.data.config as ConditionConfig;
   for (let predicate of config.allConditionsTrue) {
-    console.log(
-      `Проверка, что значение переменной ${predicate.param} ${predicate.condition} ${predicate.expectedValue}`
+    logs.push(
+      getLog(
+        `Проверка, что значение переменной ${predicate.param} ${predicate.condition} ${predicate.expectedValue}`
+      )
     );
     const condition = conditions.find((it) => it.name == predicate.condition);
     if (predicate.param == undefined || !params.has(predicate.param)) {
-      console.log(
-        `Запрашиваемой переменной ${predicate.param} нет в списке доступных`
+      logs.push(
+        getLog(
+          `Запрашиваемой переменной ${predicate.param} нет в списке доступных`
+        )
       );
       return false;
     }
@@ -153,10 +198,10 @@ const conditionRuleNodeHandle = (node: Node, params: Map<string, string>) => {
       actualValue == undefined ||
       !condition?.f(actualValue, predicate.expectedValue)
     ) {
-      console.log("Условие не выполнилось");
+      logs.push(getLog("Условие не выполнилось"));
       return false;
     }
-    console.log("Условие выполнилось");
+    logs.push(getLog("Условие выполнилось"));
   }
   return true;
 };

@@ -1,12 +1,15 @@
 import { NodeContext } from "../context";
-import { useContext } from "react";
+import { useContext, useState } from "react";
 import { resetFlow, runFlow } from "../flow/utils/RunFlow";
+import LogDialog, { Log } from "../dialog/LogDialog";
 
 const Header = () => {
   const { setNodes, nodes, edges } = useContext(NodeContext);
+  const [logs, setLogs] = useState<Log[]>([]);
+  const [isOpenLog, setIsOpenLog] = useState(false);
 
   const start = () => {
-    runFlow(nodes, edges, setNodes);
+    runFlow(nodes, edges, setNodes, setLogs);
   };
 
   const reset = () => {
@@ -29,12 +32,23 @@ const Header = () => {
           </button>
           <button
             onClick={reset}
-            className="bg-[#444444] rounded-[4px] px-[8px] hover:bg-primary-400/[0.5]"
+            className="bg-[#444444] rounded-[4px] px-[8px] hover:bg-primary-400/[0.5] mr-1"
           >
             Сброс
           </button>
+          <button
+            onClick={() => setIsOpenLog(true)}
+            className="bg-[#444444] rounded-[4px] px-[8px] hover:bg-primary-400/[0.5]"
+          >
+            Журнал
+          </button>
         </div>
       </div>
+      <LogDialog
+        isOpen={isOpenLog}
+        closeModal={() => setIsOpenLog(false)}
+        logs={logs}
+      />
     </div>
   );
 };

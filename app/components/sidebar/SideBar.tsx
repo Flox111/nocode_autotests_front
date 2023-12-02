@@ -68,7 +68,6 @@ const SideBar = () => {
           color="#006acc"
           icon="/location.svg"
         />
-        
       </Block>
 
       <Block title="Утилиты">
