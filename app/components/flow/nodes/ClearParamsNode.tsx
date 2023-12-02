@@ -9,7 +9,7 @@ import {
 } from "../options/flow.option";
 import { NodeContext } from "../../context";
 
-const StartTriggerNode = ({
+const ClearParamsNode = ({
   id,
   data,
 }: {
@@ -72,4 +72,4 @@ const StartTriggerNode = ({
   );
 };
 
-export default memo(StartTriggerNode);
+export default memo(ClearParamsNode);
