@@ -12,6 +12,7 @@ import {
 } from "../nodes/nodes.config.";
 import { conditions } from "../../dialog/ConditionalRuleDialog";
 import { Log } from "../../dialog/LogDialog";
+import * as _ from "lodash";
 
 export const runFlow = (
   nodes: Node[] | undefined,
@@ -21,108 +22,77 @@ export const runFlow = (
 ) => {
   resetFlow(nodes, setNodes);
   const startNode = nodes?.find((it) => it.type == "startNode");
-  const params = new Map<string, string>();
-
+  const params = new Map<string, any>();
+  let savedResponse: any = null;
   setLogs([]);
   const logs: Log[] = [];
 
+  if (!isValid(nodes, setNodes, logs)) {
+    setLogs(logs);
+    return;
+  }
+
   const recursiveFlow = async (currentNode: Node | undefined) => {
     if (currentNode != null && nodes != null) {
-      let nodeStatus = "success";
+      let isTestSuccess = true;
+      let isConditionFulfilled = true;
       logs.push(getLog(`Выполнение блока «${currentNode.data.description}»`));
-      switch (currentNode.type) {
-        case "httpRequest":
-        case "getRequest":
-        case "postRequest":
-        case "deleteRequest":
-        case "putRequest":
-          const makeRequestConfig = currentNode.data
-            .config as MakeRequestConfig;
-          const request: RequestParams = {
-            method: makeRequestConfig.method,
-            url: makeRequestConfig.url,
-            headers: makeRequestConfig.headers,
-            body: makeRequestConfig.body,
-          };
-
-          let messageLog = "Отправка запроса с параметрами:";
-          messageLog += `\nmethod: ${makeRequestConfig.method}`;
-          messageLog += `\nurl: ${makeRequestConfig.url}`;
-          messageLog += `\nheaders: ${JSON.stringify(
-            Array.from(makeRequestConfig.headers.entries())
-          )}`;
-          messageLog += `\nbody: ${makeRequestConfig.body}`;
-          logs.push(getLog(messageLog));
-
-          const response = await sendRequest(request);
-          params.set("response.status", response.status.toString());
-          params.set("response.body", response.body);
-          if (response.state == "error") {
-            nodeStatus = "error";
-            messageLog = "Ошибка во время выполнения запроса:"
-          } else {
-            messageLog = "Запрос успешно выполнен:"
-          }
-          messageLog += `\nresponse.status: ${response.status.toString()}`;
-          messageLog += `\nresponse.body: ${response.body}`;
-          logs.push(getLog(messageLog));
-          break;
-        case "conditionalRule":
-          conditionRuleNodeHandle(currentNode, params, logs);
-          break;
-        case "startNode":
-          break;
-        case "finishSuccessNode":
-          break;
-        case "finishErrorNode":
-          break;
-        case "pauseNode":
-          const pauseConfig = currentNode.data.config as PauseConfig;
-          const delay = Number(pauseConfig.value);
-          if (isNaN(delay)) {
-            nodeStatus = "error";
-            logs.push(getLog(`Ошибка при парсинге значения ${pauseConfig.value}`));
-          } else {
-            logs.push(getLog(`Поставлена пауза на ${pauseConfig.value} мс`));
-            await new Promise((f) => setTimeout(f, Number(pauseConfig.value)));
-            logs.push(getLog("Пауза снята"))
-          }
-          break;
-        case "extractParamsNode":
-          const extractParamsConfig = currentNode.data
-            .config as ExtractParamsConfig;
-          extractParamsConfig.params;
-          {
-            Array.from(extractParamsConfig.params.entries()).map(
-              ([key, value]) => {
-                params.set(key, value);
-                logs.push(
-                  getLog(`Создана переменная ${key} со значением ${value}`)
-                );
-              }
-            );
-          }
-          break;
-        case "clearParamsNode":
-          params.clear;
-          logs.push(getLog("Переменные очищены"));
-          break;
-        default:
-          break;
+      try {
+        switch (currentNode.type) {
+          case "httpRequest":
+          case "getRequest":
+          case "postRequest":
+          case "deleteRequest":
+          case "putRequest":
+            savedResponse = await httpRequestHandle(currentNode, params, logs);
+            if (savedResponse.state == "error") {
+              isTestSuccess = false;
+            }
+            break;
+          case "conditionalRule":
+            if (!conditionRuleNodeHandle(currentNode, params, logs)) {
+              isConditionFulfilled = false;
+            }
+            break;
+          case "startNode":
+            break;
+          case "finishSuccessNode":
+            break;
+          case "finishErrorNode":
+            break;
+          case "pauseNode":
+            await pauseNodeHandle(currentNode, logs);
+            break;
+          case "extractParamsNode":
+            extractParamHandle(currentNode, params, logs, savedResponse);
+            break;
+          case "clearParamsNode":
+            clearParamsHandle(params, logs);
+            break;
+          default:
+            break;
+        }
+      } catch (e) {
+        isTestSuccess = false;
+        logs.push(
+          getLog(
+            `Во время выполнения произошла ошибка: ${(e as Error).message}`
+          )
+        );
       }
       setNodes((nds: Node[]) =>
         nds.map((node) => {
           if (node.id === currentNode.id) {
             node.data = {
               ...node.data,
-              state: nodeStatus,
+              state: isTestSuccess ? "success" : "error",
             };
           }
           return node;
         })
       );
 
-      if (nodeStatus == "error") {
+      if (!isTestSuccess) {
         return;
       }
 
@@ -130,7 +100,13 @@ export const runFlow = (
         [currentNode],
         edges || []
       ).filter((edge: Edge) => {
-        return edge.source == currentNode.id;
+        if (currentNode.type == "conditionalRule") {
+          return isConditionFulfilled
+            ? edge.source == currentNode.id && edge.sourceHandle == "true"
+            : edge.source == currentNode.id && edge.sourceHandle == "false";
+        } else {
+          return edge.source == currentNode.id;
+        }
       });
 
       if (outgoingEdges.length > 0) {
@@ -146,6 +122,62 @@ export const runFlow = (
   setLogs(logs);
 };
 
+export const isValid = (
+  nodes: Node[] | undefined,
+  setNodes: any,
+  logs: Log[]
+) => {
+  let hasNoValidNode = false;
+  if (nodes != undefined) {
+    for (let currentNode of nodes) {
+      let isValidNode = true;
+      switch (currentNode.type) {
+        case "httpRequest":
+        case "getRequest":
+        case "postRequest":
+        case "deleteRequest":
+        case "putRequest":
+          const makeRequestConfig = currentNode.data
+            .config as MakeRequestConfig;
+          isValidNode = makeRequestConfig != null && makeRequestConfig.isValid;
+          break;
+        case "conditionalRule":
+          const conditionConfig = currentNode.data.config as ConditionConfig;
+          isValidNode = conditionConfig != null && conditionConfig.isValid;
+          break;
+        case "pauseNode":
+          const pauseConfig = currentNode.data.config as PauseConfig;
+          isValidNode = pauseConfig != null && pauseConfig.isValid;
+          break;
+        case "extractParamsNode":
+          const extractParamsConfig = currentNode.data
+            .config as ExtractParamsConfig;
+          isValidNode =
+            extractParamsConfig != null && extractParamsConfig.isValid;
+          break;
+        default:
+          break;
+      }
+      if (!isValidNode) {
+        hasNoValidNode = true;
+        setNodes((nds: Node[]) =>
+        nds.map((node) => {
+          if (node.id === currentNode.id) {
+            node.data = {
+              ...node.data,
+              state: "noValid",
+            };
+          }
+          return node;
+        })
+      );
+      }
+    }
+  } else {
+    return false;
+  }
+  return !hasNoValidNode;
+};
 const getLog = (message: string) => {
   return {
     time: getTime(),
@@ -168,6 +200,70 @@ export const resetFlow = (nodes: Node[] | undefined, setNodes: any) => {
       return node;
     })
   );
+};
+
+const httpRequestHandle = async (
+  node: Node,
+  params: Map<string, any>,
+  logs: Log[]
+) => {
+  const makeRequestConfig = node.data.config as MakeRequestConfig;
+  const request: RequestParams = {
+    method: makeRequestConfig.method,
+    url: makeRequestConfig.url,
+    headers: makeRequestConfig.headers,
+    body: makeRequestConfig.body,
+  };
+
+  let messageLog = "Отправка запроса с параметрами:";
+  messageLog += `\nmethod: ${makeRequestConfig.method}`;
+  messageLog += `\nurl: ${makeRequestConfig.url}`;
+  messageLog += `\nheaders: ${JSON.stringify(
+    Array.from(makeRequestConfig.headers.entries())
+  )}`;
+  messageLog += `\nbody: ${makeRequestConfig.body}`;
+  logs.push(getLog(messageLog));
+
+  const response = await sendRequest(request);
+  params.set("response.status", response.status.toString());
+  params.set("response.body", response.body);
+  if (response.state == "error") {
+    messageLog = "Ошибка во время выполнения запроса:";
+  } else {
+    messageLog = "Запрос успешно выполнен:";
+  }
+  messageLog += `\n${JSON.stringify(response, null, 2)}`;
+  logs.push(getLog(messageLog));
+  return response;
+};
+
+const pauseNodeHandle = async (node: Node, logs: Log[]) => {
+  const pauseConfig = node.data.config as PauseConfig;
+  const delay = Number(pauseConfig.value);
+  logs.push(getLog(`Поставлена пауза на ${pauseConfig.value} мс`));
+  await new Promise((f) => setTimeout(f, Number(pauseConfig.value)));
+  logs.push(getLog("Пауза снята"));
+};
+
+const clearParamsHandle = (params: Map<string, string>, logs: Log[]) => {
+  params.clear;
+  logs.push(getLog("Переменные очищены"));
+};
+
+const extractParamHandle = (
+  node: Node,
+  params: Map<string, any>,
+  logs: Log[],
+  savedResponse: any
+) => {
+  const extractParamsConfig = node.data.config as ExtractParamsConfig;
+  {
+    Array.from(extractParamsConfig.params.entries()).map(([key, path]) => {
+      const value = _.get(savedResponse, path);
+      params.set(key, value);
+      logs.push(getLog(`Создана переменная ${key} со значением ${value}`));
+    });
+  }
 };
 
 const conditionRuleNodeHandle = (

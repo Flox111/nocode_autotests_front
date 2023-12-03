@@ -26,15 +26,10 @@ const ConditionalRuleNode = ({
 
   const config = data.config as ConditionConfig;
 
-  const isValid = () => {
-    return config != null && config.allConditionsTrue.length > 0;
-  };
-
   let image = null;
-  if (!isValid()) {
+  if (config == null || !config.isValid) {
     image = "/customize.svg";
   }
-
   return (
     <div
       style={{

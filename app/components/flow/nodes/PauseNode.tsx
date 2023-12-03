@@ -22,16 +22,10 @@ const PauseNode = ({
 
   const config = data.config as PauseConfig;
 
-  const isValid = () => {
-    console.log(config);
-    return config != null && !isEmpty(config.value);
-  };
-
   let image = null;
-  if (!isValid()) {
+  if (config == null || !config.isValid) {
     image = "/customize.svg";
   }
-
   return (
     <div
       onClick={() => setIsOpen(true)}

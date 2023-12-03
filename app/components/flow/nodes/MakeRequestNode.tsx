@@ -1,13 +1,11 @@
-import React, { FC, memo, useContext, useState } from "react";
+import React, { memo, useContext, useState } from "react";
 import { Handle, Position } from "reactflow";
 import { CustomNodeProps } from "../flow.types";
 import Image from "next/image";
 import useValidatorFn from "../utils/Validation";
 import {
   deleteNode,
-  getImageForState,
   getShadowCssPropertyForNode,
-  isEmpty,
 } from "../options/flow.option";
 import MakeRequestDetails from "../../dialog/MakeRequestDetails";
 import { MakeRequestConfig } from "./nodes.config.";
@@ -28,12 +26,8 @@ const MakeRequestNode = ({
 
   const config = data.config as MakeRequestConfig;
 
-  const isValid = () => {
-    return config != null && !isEmpty(config.url);
-  };
-
   let image = null;
-  if (!isValid()) {
+  if (config == null || !config.isValid) {
     image = "/customize.svg";
   }
 

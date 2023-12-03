@@ -22,12 +22,8 @@ const ExtractParamsNode = ({
 
   const config = data.config as ExtractParamsConfig;
 
-  const isValid = () => {
-    return config != null && config.params.size > 0;
-  };
-
   let image = null;
-  if (!isValid()) {
+  if (config == null || !config.isValid) {
     image = "/customize.svg";
   }
 

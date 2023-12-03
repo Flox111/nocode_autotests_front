@@ -86,7 +86,7 @@ export const getShadowCssPropertyForNode = (state?: string) => {
       return "rgb(99, 212, 137) 0px 0px 0px 2px, rgba(99, 212, 137, 0.12) 0px 0px 0px 8px";
     case "error":
       return "rgb(206, 76, 92) 0px 0px 0px 2px, rgba(206, 76, 92, 0.12) 0px 0px 0px 8px";
-    case "process":
+    case "noValid":
       return "rgb(243, 200, 49) 0px 0px 0px 2px, rgba(243, 200, 49, 0.12) 0px 0px 0px 8px";
     default:
       return "rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0) 0px 0px 0px 0px, rgba(0, 0, 0, 0.1) 0px 20px 25px -5px, rgba(0, 0, 0, 0.1) 0px 8px 10px -6px";

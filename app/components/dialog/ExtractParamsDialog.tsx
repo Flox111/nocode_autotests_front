@@ -42,9 +42,14 @@ const PauseDialog: FC<CustomDialogProps> = ({
     setParams(newState);
   };
 
+  const isValid = () => {
+    return params.size > 0;
+  };
+
   const apply = () => {
     const newConfig = {
       params: params,
+      isValid: isValid(),
     };
     setNodes((nds: Node[]) =>
       nds.map((node) => {

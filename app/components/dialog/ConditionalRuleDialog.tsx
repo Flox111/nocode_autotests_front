@@ -52,6 +52,10 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
 
   const [selected, setSelected] = useState(conditions[0]);
 
+  const isValid = () => {
+    return allConditionsTrue.length > 0;
+  };
+
   const addCondition = () => {
     if (
       param == "" ||
@@ -87,8 +91,8 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
   const apply = () => {
     const newConfig = {
       allConditionsTrue: allConditionsTrue,
+      isValid: isValid(),
     };
-
     setNodes((nds: Node[]) =>
       nds.map((node) => {
         if (node.id === id) {

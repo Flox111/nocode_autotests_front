@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosHeaders, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosResponse } from "axios";
 
 export type Header = {
   key: string;
@@ -15,7 +15,7 @@ export type RequestParams = {
 export type ResultProps = {
   state: string;
   status: number;
-  body: string;
+  body: any;
 };
 
 export const sendRequest = async ({
@@ -27,7 +27,7 @@ export const sendRequest = async ({
   const result: ResultProps = {
     state: "",
     status: 200,
-    body: "",
+    body: null,
   };
 
   const response = await axios({
@@ -42,15 +42,14 @@ export const sendRequest = async ({
   })
     .then((response: AxiosResponse) => {
       result.status = response.data.code;
-      result.body = JSON.stringify(response.data.body);
+      result.body = response.data.body;
       return response;
     })
     .catch((reason: AxiosError) => {
       result.status = reason.status || 400;
-      result.body = JSON.stringify(reason.message);
+      result.body = reason.message;
       return reason;
     });
   result.state = result.status == 200 ? "success" : "error";
-  console.log(result);
   return result;
 };

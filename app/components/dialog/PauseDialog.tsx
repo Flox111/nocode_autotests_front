@@ -8,6 +8,7 @@ import { Tab } from "@headlessui/react";
 import { NodeContext } from "../context";
 import { Node } from "reactflow";
 import { ConditionConfig } from "../flow/nodes/nodes.config.";
+import { isEmpty } from "../flow/options/flow.option";
 
 const PauseDialog: FC<CustomDialogProps> = ({
   isOpen,
@@ -24,9 +25,14 @@ const PauseDialog: FC<CustomDialogProps> = ({
   const [value, setValue] = useState(config?.value || "");
   const [blockTitle, setBlockTitle] = useState(currentNode?.data.title || "");
 
+  const isValid = () => {
+    return !isEmpty(value) && !isNaN(Number(value));
+  };
+
   const apply = () => {
     const newConfig = {
       value: value,
+      isValid: isValid(),
     };
     setNodes((nds: Node[]) =>
       nds.map((node) => {

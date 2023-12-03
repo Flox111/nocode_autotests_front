@@ -17,7 +17,8 @@ export interface CustomNodeProps {
     color?: string,
     state?: "success" | "fail" | "process" | "none" | undefined,
     config?: MakeRequestConfig | ConditionConfig | PauseConfig | ExtractParamsConfig,
-    type?: string
+    type?: string,
+    
 }
 
 export const nodeTypes = {

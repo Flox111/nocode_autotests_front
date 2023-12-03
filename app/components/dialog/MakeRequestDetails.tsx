@@ -16,6 +16,7 @@ import { TailSpin } from "react-loading-icons";
 import { NodeContext } from "../context";
 import { Node } from "reactflow";
 import { MakeRequestConfig } from "../flow/nodes/nodes.config.";
+import { isEmpty } from "../flow/options/flow.option";
 
 const methods: ListParameter[] = [
   { id: 1, name: "GET" },
@@ -88,6 +89,10 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
     );
   };
 
+  const isValid = () => {
+    return !isEmpty(url);
+  };
+
   const apply = () => {
     let method = "";
     if (nodeProps?.type === "getRequest") {
@@ -106,6 +111,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
       url: url,
       headers: headers,
       body: requestBody,
+      isValid: isValid(),
     };
     setNodes((nds: Node[]) =>
       nds.map((node) => {
@@ -402,18 +408,18 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
               </div>
               {responseBody?.state == "success" && (
                 <textarea
-                  value={responseBody?.body}
+                  value={JSON.stringify(responseBody, null, 2)}
                   disabled
                   className="fmt-1 w-full px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
                       rounded-[4px] text-[11.5px] shadow-sm focus:outline-none focus:border-primary-500 disabled:shadow-none
-                      resize-none scrollable h-72 overflow-x-hidden"
+                      resize-none scrollable h-48 overflow-x-hidden"
                 />
               )}
             </Tab.Panel>
           </Tab.Panels>
         </Tab.Group>
       </div>
-      <div className="flex mx-[10px] mb-5">
+      <div className="flex mx-[10px] mb-2">
         <button
           onClick={apply}
           className="bg-primary-500 ml-auto text-primary-100 text-[11.5px] 
