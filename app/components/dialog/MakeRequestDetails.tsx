@@ -7,7 +7,6 @@ import { CustomDialogProps } from "../flow/flow.types";
 import { Tab } from "@headlessui/react";
 import CustomListBox, { ListParameter } from "../listbox/CustomListBox";
 import {
-  Header,
   RequestParams,
   ResultProps,
   sendRequest,
@@ -78,7 +77,9 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
       method: selected.name,
       url: url,
       headers: headers,
-      body: requestBody,
+      body: isEmpty(requestBody)
+        ? null
+        : JSON.stringify(JSON.parse(requestBody)),
     };
     setStatusTestRequest("waiting");
     setResponseBody(
@@ -130,7 +131,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
 
   const close = () => {
     console.log(config?.headers);
-    setUrl(config?.body || "");
+    setUrl(config?.url || "");
     setHeaders(config?.headers || new Map());
     setSelected(getMethod(config));
     setRequestBody(config?.body || "");
@@ -170,16 +171,17 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
           </div>
           <ul className="text-[11.5px] mb-3">
             <li>
-              <div className="text-primary-400 inline-block">
+              <div className="text-primary-400 inline-block ps-2">
                 response.status
               </div>{" "}
               - статус ответа
             </li>
-            <li>
-              <div className="text-primary-400 inline-block">response.body</div>{" "}
-              - тело ответа
-            </li>
           </ul>
+          <div className="text-[11.5px] mb-2">
+            Также в параметрах вы можете использовать созданные переменные,
+            обернув их в $&#123;ВАША_ПЕРЕМЕННАЯ&#125;. Виместо этой записи
+            подставится значение переменной.
+          </div>
           <div className="text-[11.5px] text-primary-400">Название блока</div>
           <input
             value={blockTitle}
@@ -372,7 +374,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                       return (
                         <div
                           className="bg-[#cf313b] w-full text-primary-100 mb-3 border-white/[0.14] border-[0.8px]
-                            text-[11.5px] rounded-[4px] flex items-center h-14 justify-between gap-3 px-9"
+                            text-[11.5px] rounded-[4px] flex items-center h-fit justify-between gap-3 px-9"
                         >
                           <div className="flex gap-2 items-center">
                             <Image
@@ -384,7 +386,7 @@ const MakeRequestDetails: FC<CustomDialogProps> = ({
                             <div>
                               <div>Bad Request</div>
                               <p className="text-ellipsis max-w-[50ch] overflow-hidden">
-                                {responseBody?.body}
+                                {JSON.stringify(responseBody, null, 2)}
                               </p>
                             </div>
                           </div>

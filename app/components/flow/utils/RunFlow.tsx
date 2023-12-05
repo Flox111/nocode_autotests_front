@@ -13,6 +13,7 @@ import {
 import { conditions } from "../../dialog/ConditionalRuleDialog";
 import { Log } from "../../dialog/LogDialog";
 import * as _ from "lodash";
+import { isEmpty } from "../options/flow.option";
 
 export const runFlow = (
   nodes: Node[] | undefined,
@@ -161,16 +162,16 @@ export const isValid = (
       if (!isValidNode) {
         hasNoValidNode = true;
         setNodes((nds: Node[]) =>
-        nds.map((node) => {
-          if (node.id === currentNode.id) {
-            node.data = {
-              ...node.data,
-              state: "noValid",
-            };
-          }
-          return node;
-        })
-      );
+          nds.map((node) => {
+            if (node.id === currentNode.id) {
+              node.data = {
+                ...node.data,
+                state: "noValid",
+              };
+            }
+            return node;
+          })
+        );
       }
     }
   } else {
@@ -210,23 +211,26 @@ const httpRequestHandle = async (
   const makeRequestConfig = node.data.config as MakeRequestConfig;
   const request: RequestParams = {
     method: makeRequestConfig.method,
-    url: makeRequestConfig.url,
-    headers: makeRequestConfig.headers,
-    body: makeRequestConfig.body,
+    url: replacePlaceholderInString(makeRequestConfig.url, params),
+    headers: replacePlaceholderInMap(makeRequestConfig.headers, params),
+    body: isEmpty(makeRequestConfig.body)
+      ? null
+      : JSON.stringify(
+          JSON.parse(replacePlaceholderInString(makeRequestConfig.body, params))
+        ),
   };
 
   let messageLog = "Отправка запроса с параметрами:";
-  messageLog += `\nmethod: ${makeRequestConfig.method}`;
-  messageLog += `\nurl: ${makeRequestConfig.url}`;
+  messageLog += `\nmethod: ${request.method}`;
+  messageLog += `\nurl: ${request.url}`;
   messageLog += `\nheaders: ${JSON.stringify(
-    Array.from(makeRequestConfig.headers.entries())
+    Array.from(request.headers.entries())
   )}`;
-  messageLog += `\nbody: ${makeRequestConfig.body}`;
+  messageLog += `\nbody: ${request.body}`;
   logs.push(getLog(messageLog));
 
   const response = await sendRequest(request);
   params.set("response.status", response.status.toString());
-  params.set("response.body", response.body);
   if (response.state == "error") {
     messageLog = "Ошибка во время выполнения запроса:";
   } else {
@@ -300,4 +304,28 @@ const conditionRuleNodeHandle = (
     logs.push(getLog("Условие выполнилось"));
   }
   return true;
+};
+
+const replacePlaceholderInString = (
+  data: string,
+  params: Map<string, string>
+): string => {
+  let newData = data
+  params.forEach((value, key) => {
+    newData = newData.replaceAll("${" + key + "}", value);
+  });
+  return newData;
+};
+
+const replacePlaceholderInMap = (
+  data: Map<string, string>,
+  params: Map<string, string>
+): Map<string, string> => {
+  const replacedData: Map<string, string> = new Map();
+  data.forEach((value, key) => {
+    let tempValue = replacePlaceholderInString(value, params);
+    replacedData.set(key, tempValue);
+  });
+  console.log(replacedData)
+  return replacedData;
 };

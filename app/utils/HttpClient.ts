@@ -42,7 +42,7 @@ export const sendRequest = async ({
   })
     .then((response: AxiosResponse) => {
       result.status = response.data.code;
-      result.body = response.data.body;
+      result.body = JSON.parse(response.data.body);
       return response;
     })
     .catch((reason: AxiosError) => {
@@ -51,5 +51,6 @@ export const sendRequest = async ({
       return reason;
     });
   result.state = result.status == 200 ? "success" : "error";
+  console.log(result)
   return result;
 };

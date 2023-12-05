@@ -17,7 +17,7 @@ const PauseDialog: FC<LogDialogProps> = ({
 }: LogDialogProps) => {
   return (
     <CustomDialog isOpen={isOpen} closeModal={closeModal}>
-      <div className="flex-1 flex flex-col gap-3 text-primary-100 border-primary-300 border-b-[1px] pb-7">
+      <div className="flex-1 flex flex-col gap-0 text-primary-100 border-primary-300 border-b-[1px] pb-7">
         <div className="flex justify-between border-primary-300 border-b-[1px] w-full">
           <div className="text-[12.5px] font-semibold mx-[10px] my-[10px] self-center">
             Журнал выполнения операций
@@ -36,21 +36,37 @@ const PauseDialog: FC<LogDialogProps> = ({
             />
           </button>
         </div>
-        <div
-          className="mt-1 mx-[10px] py-1 min-h-[50px] max-h-[550px] bg-black/[0.1] border-[0.8px] 
-          border-white/[0.14] rounded-[4px] text-[11.5px] shadow-sm scrollable overflow-auto"
-        >
-          {logs.map((it, index) => {
-            return (
-              <div
-                key={index}
-                className="px-3 text-primary-100 text-ellipsis whitespace-pre-wrap"
-              >
-                {it.time} {it.message}
-              </div>
-            );
-          })}
-        </div>
+        {logs.length > 0 && (
+          <table className="p-1 w-full border-b-[0.8px] border-white/[0.14] border-spacing-1 border-separate">
+            <thead>
+              <tr className="text-[11.5px]">
+                <th>Время</th>
+                <th>Сообщение</th>
+              </tr>
+            </thead>
+            <tbody>
+              {logs.map((it, index) => {
+                return (
+                  <tr key={index}>
+                    <td
+                      width={20}
+                      className="h-7 px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                        rounded-[4px] text-[11.5px] shadow-sm resize-none scrollable"
+                    >
+                      {it.time}
+                    </td>
+                    <td
+                      className="h-fit px-3 py-1 bg-black/[0.1] border-[0.8px] border-white/[0.14] 
+                        rounded-[4px] text-[11.5px] shadow-sm whitespace-pre-wrap scrollable"
+                    >
+                      {it.message}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
       </div>
     </CustomDialog>
   );
